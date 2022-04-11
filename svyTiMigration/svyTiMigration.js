@@ -178,18 +178,18 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 	}
 
 	if (!components.length) {
-		application.output('\tNo components were found in the body - form: ' + formName, LOGGINGLEVEL.INFO);
+		application.output('--- No components were found in the body', LOGGINGLEVEL.INFO);
 		return false;
 	}
 
 	components.sort(sortComponents);
-	application.output('\tComponents found in the body - form: ' + formName + ' - components: ' + components.map(function(c) {
+	application.output('--- Components found in the body: ' + components.map(function(c) {
 		return c.name;
 	}));
 
 	if (footerComponents.length) {
 		footerComponents.sort(sortComponents);
-		application.output('\tComponents found in the footer - form: ' + formName + ' - components: ' + footerComponents.map(function(c) {
+		application.output('--- Components found in the footer: ' + footerComponents.map(function(c) {
 			return c.name;
 		}));
 	}
@@ -294,9 +294,11 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 
 		if (component.onAction) {
 			onCellClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onAction)]));
+			column.styleClass += 'clickable';
 		}
 		if (component.onDoubleClick) {
 			onCellDoubleClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onDoubleClick)]));
+			column.styleClass += 'clickable';
 		}
 		if (component.onRightClick) {
 			onCellRightClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onRightClick)]));
@@ -358,7 +360,6 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 
 	application.output('Finished converting form to NG Grid');
 	application.sleep(1000);
-	application.updateUI();
 
 	if (!skipOpen) {
 		servoyDeveloper.openForm(jsForm);
@@ -381,7 +382,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 		[component.name || '-no name-', component.x, component.y, component.width, component.height]);
 
 	if (! (component instanceof JSButton) && ! (component instanceof JSLabel) && ! (component instanceof JSField)) {
-		application.output(utils.stringFormat('\tSkipped unsupported component %s', [componentProps]), LOGGINGLEVEL.INFO);
+		application.output(utils.stringFormat('--- Skipped unsupported component %s', [componentProps]), LOGGINGLEVEL.INFO);
 		return null;
 	}
 
@@ -448,7 +449,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 
 		case JSField.IMAGE_MEDIA:
 			// Needs to be handled manually
-			application.output(utils.stringFormat('\tSkipped editable Image Media component %s. Please implement a custom edit form', [componentProps]), LOGGINGLEVEL.INFO);
+			application.output(utils.stringFormat('--- Skipped editable Image Media component %s. Please implement a custom edit form', [componentProps]), LOGGINGLEVEL.INFO);
 			break;
 
 		case JSField.CHECKS:
@@ -457,7 +458,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 
 		case JSField.RADIOS:
 			// TODO Radio buttons are not supported yet by NG Grids
-			application.output(utils.stringFormat('\tSkipped editable Radio Button component %s. It is not yet supported by NG Grids', [componentProps]), LOGGINGLEVEL.INFO);
+			application.output(utils.stringFormat('--- Skipped editable Radio Button component %s. It is not yet supported by NG Grids', [componentProps]), LOGGINGLEVEL.INFO);
 			break;
 		default:
 			break;
@@ -476,9 +477,13 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 	if (customStyleClass) {
 		column.styleClass += ' ' + customStyleClass;
 	}
+	
+	// Leading spaces can cause issues when rendering the grid
+	column.styleClass = utils.stringTrim(column.styleClass);
+	column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
 
 	if (component.imageMedia) {
-		application.output(utils.stringFormat('\tMake sure to handle image media "%s" for component: %s. See scopes.svyTiMigration.getCustomStyleClass',
+		application.output(utils.stringFormat('--- Make sure to handle image media "%s" for component: %s. See scopes.svyTiMigration.getCustomStyleClass',
 				[component.imageMedia.getName(), componentProps]), LOGGINGLEVEL.INFO);
 	}
 
@@ -488,7 +493,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 			var jsVar = form.newVariable(column.id + '_tooltip', JSVariable.TEXT, "'" + component.toolTipText + "'");
 			column.tooltip = jsVar.name;
 		} else {
-			application.output(utils.stringFormat('\Tooltip plain text not supported in grid columns, please create a form variable or calculation to show: "%s" for component: %s',
+			application.output(utils.stringFormat('--- Tooltip plain text not supported in grid columns, please create a form variable or calculation to show: "%s" for component: %s',
 					[component.toolTipText, componentProps]), LOGGINGLEVEL.INFO);
 		}
 	}
