@@ -293,18 +293,16 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 		}
 
 		if (component.onAction) {
-			onCellClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, component.onAction.getName()]));
-			column.styleClass += ' clickable';
+			onCellClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onAction)]));
 		}
 		if (component.onDoubleClick) {
-			onCellDoubleClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, component.onDoubleClick.getName()]));
-			column.styleClass += ' clickable';
+			onCellDoubleClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onDoubleClick)]));
 		}
 		if (component.onRightClick) {
-			onCellRightClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, component.onRightClick.getName()]));
+			onCellRightClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onRightClick)]));
 		}
 		if (component.onDataChange) {
-			onColumnDataChangeBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(oldValue, newValue, event);\n\t}', [column.id, component.onDataChange.getName()]));
+			onColumnDataChangeBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(oldValue, newValue, event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onDataChange)]));
 		}
 
 		removeComponent(jsForm, component);
@@ -402,7 +400,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 		autoResize: true
 	};
 
-	column.id = component.name || component.dataProviderID;
+	column.id = component.name || component.dataProviderID || 'c' + Date.now();
 	column.dataprovider = component.dataProviderID;
 	column.styleClass = component.styleClass;
 	column.valuelist = component.valuelist ? component.valuelist.getUUID().toString() : null;
@@ -610,6 +608,22 @@ function getCustomGridProperties() {
 }
 
 /**
+ * @param {JSMethod} method
+ * @return {String}
+ * @private 
+ * 
+ * @properties={typeid:24,uuid:"C66E46B9-30D1-45F4-98C3-820F842BB5E1"}
+ */
+function getMethodFullyQualifiedName(method) {
+	if (!method) {
+		return '';
+	}
+	
+	var scope = method.getScopeName();
+	return (scope ? 'scopes.' + scope + '.' : '') + method.getName();
+}
+
+/**
  * @return {Array<String>}
  * @private 
  * 
@@ -663,13 +677,7 @@ function getDataSetForTableFormsValueList(displayValue, realValue, record, value
 			return f.toLowerCase().includes(displayValue);
 		});
 	} else if (realValue != null) {
-		if (tableForms.indexOf(realValue) == -1) {
-			// Not found
-			tableForms = [];
-		}
-		else {
-			tableForms = [realValue];
-		}
+		tableForms = [realValue];
 	}
 	
 	if (tableForms.length) {
