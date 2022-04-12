@@ -60,11 +60,11 @@ typeid:47,
 uuid:"9E006F9F-6B2F-4597-8A95-070CB6F8F2A7"
 },
 {
-cssPosition:"calc(50% + 10px),20,-1,20,-1,250",
+cssPosition:"calc(50% + 10px),20,20,20,-1,-1",
 json:{
 cssPosition:{
-bottom:"-1",
-height:"250",
+bottom:"20",
+height:"-1",
 left:"20",
 right:"20",
 top:"calc(50% + 10px)",
