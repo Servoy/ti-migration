@@ -120,7 +120,7 @@ function onColumnDataChange(foundsetindex, columnindex, oldValue, newValue, even
  * @param {String} formName
  * @param {Boolean} [includeListView]
  * @param {Boolean} [skipOpen]
- * 
+ *
  * @return {Boolean}
  *
  * @properties={typeid:24,uuid:"D174958C-9D02-4FE4-829C-B8B18CA56743"}
@@ -143,12 +143,12 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 	}
 
 	if (!jsForm || jsForm.view != JSForm.LOCKED_TABLE_VIEW) {
-		if ((jsForm.view == JSForm.LIST_VIEW || jsForm.view == JSForm.LOCKED_LIST_VIEW) && !includeListView) {
+		if ( (jsForm.view == JSForm.LIST_VIEW || jsForm.view == JSForm.LOCKED_LIST_VIEW) && !includeListView) {
 			application.output('Invalid form type - form: ' + formName, LOGGINGLEVEL.ERROR);
 			return false;
 		}
 	}
-	
+
 	if (!history.removeForm(formName)) {
 		application.output('Could not remove from history before converting - form: ' + formName, LOGGINGLEVEL.ERROR);
 		return false;
@@ -265,6 +265,11 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 
 	components.forEach(/** @param {JSField|JSLabel|JSButton} component */
 	function(component) {
+		if (component instanceof JSLabel && component.labelFor && labelForElements[component.labelFor]) {
+			// This is a header label for another component, skip it, it will be deleted when used by the component
+			return;
+		}
+
 		var headerLabel = labelForElements[component.name];
 		if (!headerLabel) headerLabel = labelForElements[component.dataProviderID];
 		var column = convertComponentToGridColumn(jsForm, component, headerLabel);
@@ -364,7 +369,7 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 	if (!skipOpen) {
 		servoyDeveloper.openForm(jsForm);
 	}
-	
+
 	return true;
 }
 
@@ -477,7 +482,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 	if (customStyleClass) {
 		column.styleClass += ' ' + customStyleClass;
 	}
-	
+
 	// Leading spaces can cause issues when rendering the grid
 	column.styleClass = utils.stringTrim(column.styleClass);
 	column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
@@ -615,37 +620,37 @@ function getCustomGridProperties() {
 /**
  * @param {JSMethod} method
  * @return {String}
- * @private 
- * 
+ * @private
+ *
  * @properties={typeid:24,uuid:"C66E46B9-30D1-45F4-98C3-820F842BB5E1"}
  */
 function getMethodFullyQualifiedName(method) {
 	if (!method) {
 		return '';
 	}
-	
+
 	var scope = method.getScopeName();
 	return (scope ? 'scopes.' + scope + '.' : '') + method.getName();
 }
 
 /**
  * @return {Array<String>}
- * @private 
- * 
+ * @private
+ *
  * @properties={typeid:24,uuid:"67496C2E-2389-4809-8639-28B8B842C6B7"}
  */
 function getAllTableForms() {
 	var tableForms = [];
-	
-	solutionModel.getForms().forEach( /** @param {JSForm} f */
+
+	solutionModel.getForms().forEach(/** @param {JSForm} f */
 	function(f) {
 		if (!/_OLD$/.test(f.name) && (f.view == JSForm.LOCKED_TABLE_VIEW || f.view == JSForm.LIST_VIEW || f.view == JSForm.LOCKED_LIST_VIEW)) {
 			tableForms.push(f.name);
 		}
 	});
-	
+
 	tableForms.sort();
-	
+
 	return tableForms;
 }
 
@@ -675,7 +680,7 @@ function getDataSetForTableFormsValueList(displayValue, realValue, record, value
 	/** @type  {JSDataSet} */
 	var result = databaseManager.createEmptyDataSet(0, 0);
 	var tableForms = getAllTableForms();
-	
+
 	if (displayValue != null) {
 		tableForms = tableForms.filter(/** @param {String} f */
 		function(f) {
@@ -684,12 +689,12 @@ function getDataSetForTableFormsValueList(displayValue, realValue, record, value
 	} else if (realValue != null) {
 		tableForms = [realValue];
 	}
-	
+
 	if (tableForms.length) {
 		// Truncate the results to 500 records, max supported
 		result = databaseManager.convertToDataSet(tableForms.slice(0, 500));
 	}
-	
+
 	return result;
 }
 
