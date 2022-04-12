@@ -387,6 +387,7 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 		[component.name || '-no name-', component.x, component.y, component.width, component.height]);
 
 	if (! (component instanceof JSButton) && ! (component instanceof JSLabel) && ! (component instanceof JSField)) {
+		componentProps += ' - ' + component;
 		application.output(utils.stringFormat('--- Skipped unsupported component %s', [componentProps]), LOGGINGLEVEL.INFO);
 		return null;
 	}
