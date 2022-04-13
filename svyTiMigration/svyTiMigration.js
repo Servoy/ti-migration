@@ -120,12 +120,14 @@ function onColumnDataChange(foundsetindex, columnindex, oldValue, newValue, even
  * @param {String} formName
  * @param {Boolean} [includeListView]
  * @param {Boolean} [skipOpen]
+ * @param {function(String, JSWebComponent)} [gridCallback] This callback can be used to modify the resulting grid
+ * @param {function(String, JSField|JSLabel|JSButton, CustomType<aggrid-groupingtable.column>)} [columnCallback] This callback can be used to modify the resulting grid column of each component
  *
  * @return {Boolean}
  *
  * @properties={typeid:24,uuid:"D174958C-9D02-4FE4-829C-B8B18CA56743"}
  */
-function convertTableFormToGrid(formName, includeListView, skipOpen) {
+function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallback, columnCallback) {
 	var jsOldForm = solutionModel.getForm(formName + '_OLD');
 	var jsForm = solutionModel.getForm(formName);
 
@@ -272,7 +274,7 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 
 		var headerLabel = labelForElements[component.name];
 		if (!headerLabel) headerLabel = labelForElements[component.dataProviderID];
-		var column = convertComponentToGridColumn(jsForm, component, headerLabel);
+		var column = convertComponentToGridColumn(jsForm, component, headerLabel, columnCallback);
 
 		// Set a dummy name, if don't have, just to be able to delete them
 		setComponentDummyName(component);
@@ -299,11 +301,11 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 
 		if (component.onAction) {
 			onCellClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onAction)]));
-			column.styleClass += 'clickable';
+			column.styleClass = utils.stringTrim(column.styleClass + ' clickable');
 		}
 		if (component.onDoubleClick) {
 			onCellDoubleClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onDoubleClick)]));
-			column.styleClass += 'clickable';
+			column.styleClass = utils.stringTrim(column.styleClass + ' clickable');
 		}
 		if (component.onRightClick) {
 			onCellRightClickBody.push(utils.stringFormat('\tif (col.id == "%s") {\n\t\t%s(event);\n\t}', [column.id, getMethodFullyQualifiedName(component.onRightClick)]));
@@ -351,14 +353,8 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
 		grid.setHandler("onColumnDataChange", jsMethod);
 	}
 
-	var customProps = getCustomGridProperties();
-	for (var p in customProps) {
-		grid.setJSONProperty(p, customProps[p]);
-	}
-
-	var customStyleClass = getCustomGridStyleClass(grid);
-	if (customStyleClass) {
-		grid.setJSONProperty('styleClass', grid.getJSONProperty('styleClass') + ' ' + customStyleClass);
+	if (gridCallback instanceof Function) {
+		gridCallback(formName, grid);
 	}
 
 	servoyDeveloper.save(true);
@@ -377,12 +373,13 @@ function convertTableFormToGrid(formName, includeListView, skipOpen) {
  * @param {JSForm} form
  * @param {JSField|JSLabel|JSButton} component
  * @param {JSLabel} [jsHeader]
+ * @param {function(String, JSField|JSLabel|JSButton, CustomType<aggrid-groupingtable.column>)} [callback] Function used to customize the column after the component is converted
  * @return {CustomType<aggrid-groupingtable.column>}
  * @private
  *
  * @properties={typeid:24,uuid:"9F4B7BB0-B8C2-4CB5-838B-1EF46699DB03"}
  */
-function convertComponentToGridColumn(form, component, jsHeader) {
+function convertComponentToGridColumn(form, component, jsHeader, callback) {
 	var componentProps = utils.stringFormat('component: %s (x: %.0f, y: %.0f, width: %.0f, height: %.0f)',
 		[component.name || '-no name-', component.x, component.y, component.width, component.height]);
 
@@ -479,15 +476,6 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 		}
 	}
 
-	var customStyleClass = getCustomColumnStyleClass(component);
-	if (customStyleClass) {
-		column.styleClass += ' ' + customStyleClass;
-	}
-
-	// Leading spaces can cause issues when rendering the grid
-	column.styleClass = utils.stringTrim(column.styleClass);
-	column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
-
 	if (component.imageMedia) {
 		application.output(utils.stringFormat('--- Make sure to handle image media "%s" for component: %s. See scopes.svyTiMigration.getCustomStyleClass',
 				[component.imageMedia.getName(), componentProps]), LOGGINGLEVEL.INFO);
@@ -503,7 +491,15 @@ function convertComponentToGridColumn(form, component, jsHeader) {
 					[component.toolTipText, componentProps]), LOGGINGLEVEL.INFO);
 		}
 	}
+	
+	if (callback instanceof Function) {
+		callback(form.name, component, column);
+	}
 
+	// Leading spaces can cause issues when rendering the grid
+	column.styleClass = utils.stringTrim(column.styleClass);
+	column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
+	
 	return column;
 }
 
@@ -556,66 +552,6 @@ function excludeComponent(component) {
  */
 function sortComponents(c1, c2) {
 	return (c1.y == c2.y) ? (c1.x - c2.x) : (c1.y - c2.y);
-}
-
-/**
- * Add any custom logic in this method to return a custom style class to be added to the column that will replace the component
- *
- * @param {JSComponent} component
- * @return {String}
- * @private
- *
- *  @example
- *  <pre>
- *  if (component.name == 'btnEdit' ||
- *      (component.imageMedia && component.imageMedia.getName() == 'pencil.png')) {
- *          return 'grid-edit-icon';
- *  }
- *  </pre>
- *
- * @properties={typeid:24,uuid:"B4B11BBE-B91C-4C45-BF68-F30793F8FF75"}
- */
-function getCustomColumnStyleClass(component) {
-	return '';
-}
-
-/**
- * Add any custom logic in this method to return a custom style class to be added to the grid
- *
- * @param {JSWebComponent} grid
- * @return {String}
- * @private
- *
- * @properties={typeid:24,uuid:"493CB7D3-BA98-4E1D-9514-CEF420DABA3A"}
- */
-function getCustomGridStyleClass(grid) {
-	return '';
-}
-
-/**
- * Use this method to customize the resulting grid after the form is converted, returns a JSON object with the properties to be set
- *
- * @return {Object}
- * @private
- *
- *  @example
- *  <pre>
- *  return {
- *      showColumnsMenuTab : false,
- *      toolPanelConfig : {
- *          suppressColumnExpandAll: true,
- *          suppressColumnFilter: true,
- *          suppressColumnSelectAll: true,
- *          suppressRowGroups: true,
- *          suppressSideButtons: true
- *      }
- *   }
- *  </pre>
- *
- * @properties={typeid:24,uuid:"3C1CF1B5-7D99-48F2-8B24-CCE4B239B596"}
- */
-function getCustomGridProperties() {
-	return null;
 }
 
 /**
