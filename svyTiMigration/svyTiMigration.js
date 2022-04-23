@@ -271,7 +271,7 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 			// This is a header label for another component, skip it, it will be deleted when used by the component
 			return;
 		}
-
+		
 		var headerLabel = labelForElements[component.name];
 		if (!headerLabel) headerLabel = labelForElements[component.dataProviderID];
 		var column = convertComponentToGridColumn(jsForm, component, headerLabel, columnCallback);
@@ -353,6 +353,16 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 		grid.setHandler("onColumnDataChange", jsMethod);
 	}
 
+	var customProps = getCustomGridProperties();
+	for (var p in customProps) {
+		grid.setJSONProperty(p, customProps[p]);
+	}
+
+	var customStyleClass = getCustomGridStyleClass(grid);
+	if (customStyleClass) {
+		grid.setJSONProperty('styleClass', grid.getJSONProperty('styleClass') + ' ' + customStyleClass);
+	}
+	
 	if (gridCallback instanceof Function) {
 		gridCallback(formName, grid);
 	}
@@ -393,114 +403,133 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 		// The component won't be included in the grid
 		return null;
 	}
-
-	/** @type {CustomType<aggrid-groupingtable.column>} */
-	var column = {
-		rowGroupIndex: -1,
-		enableRowGroup: true,
-		enableSort: true,
-		visible: component.visible,
-		editType: null,
-		autoResize: true
-	};
-
-	column.id = component.name || component.dataProviderID || 'c' + Date.now();
-	column.dataprovider = component.dataProviderID;
-	column.styleClass = component.styleClass;
-	column.valuelist = component.valuelist ? component.valuelist.getUUID().toString() : null;
-	column.format = component.format;
-
-	if (jsHeader) {
-		column.headerTitle = jsHeader.text;
-		column.headerStyleClass = jsHeader.styleClass;
-	} else if (component.titleText) {
-		column.headerTitle = component.titleText;
-	}
-
-	if (component.horizontalAlignment == SM_ALIGNMENT.RIGHT) {
-		column.styleClass = (column.styleClass || '') + ' text-right';
-		column.headerStyleClass = (column.headerStyleClass || '') + ' text-right';
-	} else if (component.horizontalAlignment == SM_ALIGNMENT.CENTER) {
-		column.styleClass = (column.styleClass || '') + ' text-center';
-		column.headerStyleClass = (column.headerStyleClass || '') + ' text-center';
-	}
-
-	var autoWidth = (component.anchors == SM_ANCHOR.ALL || component.anchors == (SM_ANCHOR.NORTH | SM_ANCHOR.EAST | SM_ANCHOR.WEST) || component.anchors == (SM_ANCHOR.EAST | SM_ANCHOR.WEST | SM_ANCHOR.SOUTH));
-	if (!autoWidth) {
-		column.width = component.width;
-		column.minWidth = component.width;
-	}
-
-	if (component instanceof JSField && component.editable) {
-		switch (component.displayType) {
-		case JSField.TEXT_FIELD:
-		case JSField.TEXT_AREA:
-			column.editType = "TEXTFIELD";
-			break;
-
-		case JSField.TYPE_AHEAD:
-			column.editType = "TYPEAHEAD";
-			break;
-
-		case JSField.COMBOBOX:
-			column.editType = "COMBOBOX";
-			break;
-
-		case JSField.CALENDAR:
-			column.editType = "DATEPICKER";
-			break;
-
-		case JSField.IMAGE_MEDIA:
-			// Needs to be handled manually
-			application.output(utils.stringFormat('--- Skipped editable Image Media component %s. Please implement a custom edit form', [componentProps]), LOGGINGLEVEL.INFO);
-			break;
-
-		case JSField.CHECKS:
-			column.editType = "CHECKBOX";
-			break;
-
-		case JSField.RADIOS:
-			// TODO Radio buttons are not supported yet by NG Grids
-			application.output(utils.stringFormat('--- Skipped editable Radio Button component %s. It is not yet supported by NG Grids', [componentProps]), LOGGINGLEVEL.INFO);
-			break;
-		default:
-			break;
+	
+	try {
+		/** @type {CustomType<aggrid-groupingtable.column>} */
+		var column = {
+			rowGroupIndex: -1,
+			enableRowGroup: true,
+			enableSort: true,
+			visible: component.visible,
+			editType: null,
+			autoResize: true
+		};
+	
+		column.id = component.name || component.dataProviderID || 'c' + Date.now();
+		column.dataprovider = component.dataProviderID;
+		column.styleClass = component.styleClass;
+		column.valuelist = component.valuelist ? component.valuelist.getUUID().toString() : null;
+		column.format = component.format;
+	
+		if (jsHeader) {
+			column.headerTitle = jsHeader.text;
+			column.headerStyleClass = jsHeader.styleClass;
+		} else if (component.titleText) {
+			column.headerTitle = component.titleText;
 		}
-	} else if (component instanceof JSLabel && !column.dataprovider) {
-		/** @type {JSLabel} */
-		var label = component;
-
-		// Use label tag text as dataprovider if showing a single column/calculation/aggregation
-		if (/^%%[a-zA-Z\._]+%%$/.test(label.text)) {
-			column.dataprovider = utils.stringReplace(label.text, '%%', '');
+	
+		if (component.horizontalAlignment == SM_ALIGNMENT.RIGHT) {
+			column.styleClass = (column.styleClass || '') + ' text-right';
+			column.headerStyleClass = (column.headerStyleClass || '') + ' text-right';
+		} else if (component.horizontalAlignment == SM_ALIGNMENT.CENTER) {
+			column.styleClass = (column.styleClass || '') + ' text-center';
+			column.headerStyleClass = (column.headerStyleClass || '') + ' text-center';
 		}
-	}
-
-	if (component.imageMedia) {
-		application.output(utils.stringFormat('--- Make sure to handle image media "%s" for component: %s. See scopes.svyTiMigration.getCustomStyleClass',
-				[component.imageMedia.getName(), componentProps]), LOGGINGLEVEL.INFO);
-	}
-
-	if (component.toolTipText) {
-		// Assume plain text only, if there are field tags they must be handled manually using a calculation
-		if (column.id) {
-			var jsVar = form.newVariable(column.id + '_tooltip', JSVariable.TEXT, "'" + component.toolTipText + "'");
-			column.tooltip = jsVar.name;
-		} else {
-			application.output(utils.stringFormat('--- Tooltip plain text not supported in grid columns, please create a form variable or calculation to show: "%s" for component: %s',
-					[component.toolTipText, componentProps]), LOGGINGLEVEL.INFO);
+	
+		var autoWidth = (component.anchors == SM_ANCHOR.ALL || component.anchors == (SM_ANCHOR.NORTH | SM_ANCHOR.EAST | SM_ANCHOR.WEST) || component.anchors == (SM_ANCHOR.EAST | SM_ANCHOR.WEST | SM_ANCHOR.SOUTH));
+		if (!autoWidth) {
+			column.width = component.width;
+			column.minWidth = component.width;
 		}
+	
+		if (component instanceof JSField && component.editable) {
+			switch (component.displayType) {
+			case JSField.TEXT_FIELD:
+			case JSField.TEXT_AREA:
+				column.editType = "TEXTFIELD";
+				break;
+	
+			case JSField.TYPE_AHEAD:
+				column.editType = "TYPEAHEAD";
+				break;
+	
+			case JSField.COMBOBOX:
+				column.editType = "COMBOBOX";
+				break;
+	
+			case JSField.CALENDAR:
+				column.editType = "DATEPICKER";
+				break;
+	
+			case JSField.IMAGE_MEDIA:
+				// Needs to be handled manually
+				application.output(utils.stringFormat('--- Skipped editable Image Media component %s. Please implement a custom edit form', [componentProps]), LOGGINGLEVEL.INFO);
+				break;
+	
+			case JSField.CHECKS:
+				column.editType = "CHECKBOX";
+				break;
+	
+			case JSField.RADIOS:
+				// TODO Radio buttons are not supported yet by NG Grids
+				application.output(utils.stringFormat('--- Skipped editable Radio Button component %s. It is not yet supported by NG Grids', [componentProps]), LOGGINGLEVEL.INFO);
+				break;
+			default:
+				break;
+			}
+		} else if (component instanceof JSLabel && !column.dataprovider) {
+			/** @type {JSLabel} */
+			var label = component;
+	
+			// Use label tag text as dataprovider if showing a single column/calculation/aggregation
+			if (/^%%[a-zA-Z\._]+%%$/.test(label.text)) {
+				column.dataprovider = utils.stringReplace(label.text, '%%', '');
+			}
+		}
+	
+		var customStyleClass = getCustomColumnStyleClass(component);
+		if (customStyleClass) {
+			column.styleClass += ' ' + customStyleClass;
+		}
+	
+		if (component.imageMedia) {
+			application.output(utils.stringFormat('--- Make sure to handle image media "%s" for component: %s. See scopes.svyTiMigration.getCustomStyleClass',
+					[component.imageMedia.getName(), componentProps]), LOGGINGLEVEL.INFO);
+		}
+	
+		if (component.toolTipText) {
+			// Assume plain text only, if there are field tags they must be handled manually using a calculation
+			if (column.id) {
+				// If the tooltip has a single dataprovider tag, no calculations, then it can be used as a tooltip dataprovider for the column
+				if (/^%%[a-zA-Z0-9\._]+%%$/.test(component.toolTipText)) {
+					column.tooltip = utils.stringReplace(component.toolTipText, '%%', '');
+				}
+				// Otherwise, for plain text or multi dataprovider tags a form variable will be created
+				else {
+					// Make sure the variable name is valid, replace any dot (.) with double underscore (__)
+					var jsVar = form.newVariable(utils.stringReplace(column.id, '.', '__') + '_tooltip', JSVariable.TEXT, "'" + component.toolTipText + "'");
+					column.tooltip = jsVar.name;
+				}
+			} else {
+				application.output(utils.stringFormat('--- Tooltip plain text not supported in grid columns, please create a form variable or calculation to show: "%s" for component: %s',
+						[component.toolTipText, componentProps]), LOGGINGLEVEL.INFO);
+			}
+		}
+		
+		if (callback instanceof Function) {
+			callback(form.name, component, column);
+		}
+	
+		// Leading spaces can cause issues when rendering the grid
+		column.styleClass = utils.stringTrim(column.styleClass);
+		column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
+		
+		return column;
+	} catch (e) {
+		application.output(utils.stringFormat('Error converting component to column: %s - Ex: %s %s', [componentProps, e.message, e.stack]), LOGGINGLEVEL.ERROR);
 	}
 	
-	if (callback instanceof Function) {
-		callback(form.name, component, column);
-	}
-
-	// Leading spaces can cause issues when rendering the grid
-	column.styleClass = utils.stringTrim(column.styleClass);
-	column.headerStyleClass = utils.stringTrim(column.headerStyleClass);
-	
-	return column;
+	return null;
 }
 
 /**
@@ -552,6 +581,66 @@ function excludeComponent(component) {
  */
 function sortComponents(c1, c2) {
 	return (c1.y == c2.y) ? (c1.x - c2.x) : (c1.y - c2.y);
+}
+
+/**
+ * Add any custom logic in this method to return a custom style class to be added to the column that will replace the component
+ *
+ * @param {JSComponent} component
+ * @return {String}
+ * @private
+ *
+ *  @example
+ *  <pre>
+ *  if (component.name == 'btnEdit' ||
+ *      (component.imageMedia && component.imageMedia.getName() == 'pencil.png')) {
+ *          return 'grid-edit-icon';
+ *  }
+ *  </pre>
+ *
+ * @properties={typeid:24,uuid:"B4B11BBE-B91C-4C45-BF68-F30793F8FF75"}
+ */
+function getCustomColumnStyleClass(component) {
+	return '';
+}
+
+/**
+ * Add any custom logic in this method to return a custom style class to be added to the grid
+ *
+ * @param {JSWebComponent} grid
+ * @return {String}
+ * @private
+ *
+ * @properties={typeid:24,uuid:"493CB7D3-BA98-4E1D-9514-CEF420DABA3A"}
+ */
+function getCustomGridStyleClass(grid) {
+	return '';
+}
+
+/**
+ * Use this method to customize the resulting grid after the form is converted, returns a JSON object with the properties to be set
+ *
+ * @return {Object}
+ * @private
+ *
+ *  @example
+ *  <pre>
+ *  return {
+ *      showColumnsMenuTab : false,
+ *      toolPanelConfig : {
+ *          suppressColumnExpandAll: true,
+ *          suppressColumnFilter: true,
+ *          suppressColumnSelectAll: true,
+ *          suppressRowGroups: true,
+ *          suppressSideButtons: true
+ *      }
+ *   }
+ *  </pre>
+ *
+ * @properties={typeid:24,uuid:"3C1CF1B5-7D99-48F2-8B24-CCE4B239B596"}
+ */
+function getCustomGridProperties() {
+	return null;
 }
 
 /**
