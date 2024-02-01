@@ -482,6 +482,17 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 			default:
 				break;
 			}
+		} if (component && component.displayType == JSField.CHECKS && !component.editable) {
+			
+			// if field is a non-editable checkbox. Show it as checkbox but make sure is not editable by setting the isEditableDataprovider
+			column.editType = "CHECKBOX";
+			
+			if (!form.getVariable('isEditableDataprovider')) {
+				form.newVariable('isEditableDataprovider', JSVariable.MEDIA, "false");
+			}
+			
+			column.isEditableDataprovider = 'isEditableDataprovider';
+			
 		} else if (component instanceof JSLabel && !column.dataprovider) {
 			/** @type {JSLabel} */
 			var label = component;
