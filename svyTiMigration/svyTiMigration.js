@@ -437,9 +437,14 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 		}
 	
 		var autoWidth = (component.anchors == SM_ANCHOR.ALL || component.anchors == (SM_ANCHOR.NORTH | SM_ANCHOR.EAST | SM_ANCHOR.WEST) || component.anchors == (SM_ANCHOR.EAST | SM_ANCHOR.WEST | SM_ANCHOR.SOUTH));
+		column.width = component.width;
+		// column.minWidth = component.width; /* TODO should set a minWidth or not ? */
+		
 		if (!autoWidth) {
 			column.width = component.width;
 			column.minWidth = component.width;
+			column.maxWidth = component.width;
+			column.autoResize = false;
 		}
 	
 		if (component instanceof JSField && component.editable) {
