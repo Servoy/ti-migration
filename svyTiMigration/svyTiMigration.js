@@ -506,8 +506,16 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 				}
 				// Otherwise, for plain text or multi dataprovider tags a form variable will be created
 				else {
+					if (/%%[a-zA-Z0-9\._]+%%/.test(component.toolTipText)) {
+						application.output(utils.stringFormat('--- Tooltip text with replace tags not supported in grid columns, please create a form variable or calculation to show: "%s" for component: %s',
+							[component.toolTipText, componentProps]), LOGGINGLEVEL.INFO);
+					}
+					
+					// If tooltip is an i18n Msg, get i18n msg value
+					var jsVarValue = (/^i18n:[a-zA-Z0-9\._]+$/.test(component.toolTipText)) ? "i18n.getI18NMessage('" + component.toolTipText + "')" : "'" + component.toolTipText + "'";
+					
 					// Make sure the variable name is valid, replace any dot (.) with double underscore (__)
-					var jsVar = form.newVariable(utils.stringReplace(column.id, '.', '__') + '_tooltip', JSVariable.TEXT, "'" + component.toolTipText + "'");
+					var jsVar = form.newVariable(utils.stringReplace(column.id, '.', '__') + '_tooltip', JSVariable.TEXT, jsVarValue);
 					column.tooltip = jsVar.name;
 				}
 			} else {
