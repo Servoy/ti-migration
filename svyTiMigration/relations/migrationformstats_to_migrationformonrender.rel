@@ -1,0 +1,10 @@
+allowCreationRelatedRecords:true,
+foreignDataSource:"mem:migrationFormOnRender",
+items:[
+{foreignColumnName:"form_name",primaryDataProviderID:"form_name",typeid:23,uuid:"4C63E825-9B5B-4093-B1F3-E58F7A2CBF70"}
+],
+joinType:1,
+name:"migrationformstats_to_migrationformonrender",
+primaryDataSource:"mem:migrationFormStats",
+typeid:22,
+uuid:"034445D2-B607-4A5C-ADAC-7B6342621BDF"

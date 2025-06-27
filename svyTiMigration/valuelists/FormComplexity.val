@@ -1,0 +1,10 @@
+addEmptyValue:1,
+customValues:"EASY|%%scopes.svyTiHelper.FORM_COMPLEXITY_LEVELS.EASY%%\r\
+MEDIUM|%%scopes.svyTiHelper.FORM_COMPLEXITY_LEVELS.MEDIUM%%\r\
+HARD|%%scopes.svyTiHelper.FORM_COMPLEXITY_LEVELS.HARD%%\r\
+LEGENDARY|%%scopes.svyTiHelper.FORM_COMPLEXITY_LEVELS.LEGENDARY%%",
+displayValueType:12,
+name:"FormComplexity",
+realValueType:12,
+typeid:34,
+uuid:"D8F10523-E395-48DF-A0A3-C7DE6A01FAAA"

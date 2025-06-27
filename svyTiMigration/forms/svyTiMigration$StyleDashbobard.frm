@@ -1,0 +1,112 @@
+customProperties:"formComponent:false,\
+useCssPosition:true",
+dataSource:"mem:TiMigrationStyles",
+encapsulation:108,
+items:[
+{
+cssPosition:"28,-1,-1,16,260,30",
+json:{
+cssPosition:{
+bottom:"-1",
+height:"30",
+left:"16",
+right:"-1",
+top:"28",
+width:"260"
+},
+styleClass:"default-align h4 font-weight-bold",
+text:"Style Migration Status"
+},
+name:"label_5",
+styleClass:"default-align h4 font-weight-bold",
+typeName:"bootstrapcomponents-label",
+typeid:47,
+uuid:"7027345E-23DD-4606-91F7-D7858F8A2D8A"
+},
+{
+cssPosition:"23,11,-1,-1,50,50",
+json:{
+cssPosition:{
+bottom:"-1",
+height:"50",
+left:"-1",
+right:"11",
+top:"23",
+width:"50"
+},
+imageStyleClass:"fab fa-css3-alt fa-xl",
+onActionMethodID:"A7AF3958-96B7-438E-AA2B-50090620ABB5",
+styleClass:"btn btn-warning btn-round",
+toolTipText:"Launch the NG Client"
+},
+name:"button_32",
+styleClass:"btn btn-warning btn-round",
+typeName:"bootstrapcomponents-button",
+typeid:47,
+uuid:"912F3736-B5EA-458F-A2BD-5C3A1FFD2ACD"
+},
+{
+cssPosition:"82,11,67,16,489,331",
+json:{
+columns:[
+{
+dataprovider:"name",
+headerTitle:"Style",
+id:"name",
+styleClassDataprovider:null,
+svyUUID:"CDAAB701-694B-4F35-823A-D0EA5966CFE4"
+},
+{
+dataprovider:"formscount",
+headerTitle:"# Forms",
+id:"number_of_forms",
+styleClassDataprovider:null,
+svyUUID:"4B17EAC5-975C-4DE7-AF93-452739E8D4D7"
+},
+{
+headerTitle:"Is Migrated",
+id:"migrated",
+maxWidth:150,
+minWidth:150,
+styleClass:"align-center",
+styleClassDataprovider:"migratedIcon",
+svyUUID:"925953C2-590E-458A-BA30-03B4085A73C4",
+width:150
+},
+{
+id:"css3",
+maxWidth:50,
+minWidth:50,
+styleClass:"fab fa-css3-alt text-warning",
+svyUUID:"FA257883-ABB7-4D23-A469-391B960D04AD",
+width:50
+}
+],
+cssPosition:{
+bottom:"67",
+height:"331",
+left:"16",
+right:"11",
+top:"82",
+width:"489"
+},
+onCellClick:"668AEDAE-E9CB-4538-A34B-C104BE99520A"
+},
+name:"datagrid_7",
+typeName:"aggrid-groupingtable",
+typeid:47,
+uuid:"C77EE4EA-135C-4B32-934E-AE1580F2806E"
+},
+{
+height:480,
+partType:5,
+typeid:19,
+uuid:"FE288ECE-20C7-4710-9066-68F07BF417F2"
+}
+],
+name:"svyTiMigration$StyleDashbobard",
+navigatorID:"-1",
+onShowMethodID:"415727C0-C6DB-4763-AA31-2057CC40A0D1",
+showInMenu:true,
+typeid:3,
+uuid:"55314C91-5E11-4A5C-943F-8196D4414F64"
