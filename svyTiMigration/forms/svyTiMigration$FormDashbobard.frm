@@ -111,7 +111,7 @@ top:"150",
 width:"0"
 }
 },
-name:"formcontainer_11",
+name:"tab",
 typeName:"servoycore-formcontainer",
 typeid:47,
 uuid:"695C0EF1-A84B-444B-A688-2E4FF6692BF3"
@@ -162,7 +162,7 @@ cssPosition:"15,-1,-1,13,200,120",
 json:{
 containedForm:{
 border:{
-
+onActionMethodID:"EE4A1F5A-59A4-44AC-BFD0-8C0138B60F0A"
 },
 countMigrated:{
 dataProviderID:"countGridsMigrated"
@@ -181,7 +181,7 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
-
+onActionMethodID:"EE4A1F5A-59A4-44AC-BFD0-8C0138B60F0A"
 }
 },
 cssPosition:{
@@ -209,7 +209,7 @@ cssPosition:"17,-1,-1,452,200,120",
 json:{
 containedForm:{
 border:{
-
+onActionMethodID:"D9F70FBC-4790-4557-87B3-1ACE9E59076E"
 },
 countMigrated:{
 dataProviderID:"countBeansMigrated"
@@ -228,6 +228,7 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
+onActionMethodID:"D9F70FBC-4790-4557-87B3-1ACE9E59076E",
 text:"Beans"
 }
 },

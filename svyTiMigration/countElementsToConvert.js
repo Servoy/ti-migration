@@ -115,6 +115,7 @@ function getFormsBeans() {
 
 
 /**
+ * @deprecated 
  * @return {Array<String>}
  *
  * @properties={typeid:24,uuid:"E3D74838-0319-418F-8252-C9E03C937E0A"}

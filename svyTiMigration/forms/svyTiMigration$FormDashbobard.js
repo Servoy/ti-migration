@@ -115,9 +115,9 @@ var countTotal = 0;
  */
 function onShow(firstShow, event) {
 	
-	countBeans = scopes.countElementsToConvert.getFormsBeans().beansNumber;
-	countGrids = scopes.svyTiMigration.getAllTableForms().length;
-	countLists = scopes.countElementsToConvert.getAllListsForms().length;
+	countBeans = scopes.svyTiAnalyzer.getAllBeans().length;
+	countGrids = scopes.svyTiAnalyzer.getAllTableForms().length;
+	countLists = scopes.svyTiAnalyzer.getAllListsForms().length;
 
 	updateProgress();
 }
@@ -140,4 +140,44 @@ function updateProgress() {
 	application.output("countTotalMigrated "+ countTotalMigrated);
 }
 
+/**
+ * Click event. dataTarget parameter is used to identify inner html elements (by their data-target attribute).
+ *
+ * @param {JSEvent} event
+ * @param {String} dataTarget
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"EE4A1F5A-59A4-44AC-BFD0-8C0138B60F0A"}
+ */
+function onActionShowGrids(event, dataTarget) {
+	elements.tab.containedForm = forms.svyTiMigration$Dashboard;
+}
 
+/**
+ * Click event. dataTarget parameter is used to identify inner html elements (by their data-target attribute).
+ *
+ * @param {JSEvent} event
+ * @param {String} dataTarget
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"C751670C-B8AF-4363-A64D-96B3E1F188CD"}
+ */
+function onActionShowLists(event, dataTarget) {
+	elements.tab.containedForm = forms.svyTiMigration$Dashboard;
+}
+
+/**
+ * Click event. dataTarget parameter is used to identify inner html elements (by their data-target attribute).
+ *
+ * @param {JSEvent} event
+ * @param {String} dataTarget
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"D9F70FBC-4790-4557-87B3-1ACE9E59076E"}
+ */
+function onActionShowBeans(event, dataTarget) {
+	elements.tab.containedForm = forms.svyTiMigration$Beans;
+}
