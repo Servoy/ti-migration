@@ -32,6 +32,12 @@ formName:"55314C91-5E11-4A5C-943F-8196D4414F64",
 id:"style",
 svyUUID:"22A52E2F-C6D5-420F-8355-1CBBC2CBAD2F",
 text:"Styles"
+},
+{
+formName:"822AF46E-A0E1-4328-AE39-4CBF83B6440E",
+id:"scriptscan",
+svyUUID:"F2E385DA-1DB0-451D-B135-F620A5422FD3",
+text:"Script"
 }
 ],
 sidenavWidth:200,

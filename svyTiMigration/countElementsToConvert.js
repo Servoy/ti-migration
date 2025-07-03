@@ -67,6 +67,7 @@ function getFormsRTFarea() {
 }
 
 /**
+ * @deprecated 
  * @return Object<Number, Array<String>, Array<Number>>
  *
  * @properties={typeid:24,uuid:"7AFF368C-06CA-467C-9724-5D274D989F7F"}
@@ -138,6 +139,7 @@ function getAllListsForms() {
 
 
 /**
+ * @deprecated 
  * @param {{beansNumber: Number, beansClasses: Array<String>, beansPerClass: Array<Number>}} all_beans
  * @return {Array<{className: String, beansNumber: Number}>}
  *

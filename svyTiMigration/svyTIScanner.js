@@ -157,6 +157,8 @@ function getStructure(dir) {
  * @properties={typeid:24,uuid:"BAF0DDDD-C00B-469B-8B93-0FE8A933C57C"}
  */
 function scan(dir) {
+	
+	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity']);
 
 	var totalsObj = { num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
@@ -243,13 +245,21 @@ function scan(dir) {
 		getStructure(servoySolutions[j]);
 		//		break;
 	}
+	
+	var solutionName;;
+	var scopeName;
+	var featureName;
+	var weight;
+	
 
 	//remove forms that don't have any flags
 	retMsg += '<p style="font-weight:bold;">SCAN RESULT DETAILS : <p><hr>'
 	for (i in servoySolutionsObj) {
 		//		retMsg += '<hr>'
+		
+		solutionName = servoySolutionsObj[i].name;
 		retMsg += '<p style="font-weight:bold;">'
-		retMsg += 'Solution : ' + servoySolutionsObj[i].name + ''
+		retMsg += 'Solution : ' + solutionName + ''
 		var num_forms_check = 0;
 
 		for (f in servoySolutionsObj[i].scopes) {
@@ -279,10 +289,16 @@ function scan(dir) {
 
 			var flag_ct = 0;
 			var list_or_table_ct = 0;
+			
+			// check scopes
 			for (f in servoySolutionsObj[i].scopes) {
 				if (servoySolutionsObj[i].scopes[f].js_flags) {
 					var ff_obj = { }
 					if (!ff_obj[f]) ff_obj[f] = [];
+					
+					// set scopeName
+					scopeName = f;
+					
 					for (var g in servoySolutionsObj[i].scopes[f].js_flags) {
 						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags[g], totalsObj)
 						if (g == '<style>' || g == '<html>') {
@@ -293,6 +309,11 @@ function scan(dir) {
 							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
 						}
 						flag_ct += servoySolutionsObj[i].scopes[f].js_flags[g];
+						
+						featureName = g;
+						weight = _cc;
+						
+						dataset.addRow([solutionName, scopeName, featureName, weight])
 					}
 					for (var h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -307,6 +328,10 @@ function scan(dir) {
 			for (f in servoySolutionsObj[i].forms) {
 				ff_obj = { }
 				if (servoySolutionsObj[i].forms[f].js_flags) {
+					
+					// set scopeName
+					scopeName = f;
+					
 					for (g in servoySolutionsObj[i].forms[f].js_flags) {
 						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags[g], totalsObj)
 						if (!ff_obj[f]) ff_obj[f] = [];
@@ -319,6 +344,11 @@ function scan(dir) {
 						}
 
 						flag_ct += servoySolutionsObj[i].forms[f].js_flags[g];
+						
+						featureName = g;
+						weight = _cc;
+						
+						dataset.addRow([solutionName, scopeName, featureName, weight])
 					}
 					for (h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -345,6 +375,11 @@ function scan(dir) {
 							}
 							flag_ct += servoySolutionsObj[i].forms[f].frm_flags[g];
 						}
+						
+						featureName = g;
+						weight = _cc;
+						
+						dataset.addRow([solutionName, scopeName, featureName, weight])
 
 					}
 
@@ -389,5 +424,9 @@ function scan(dir) {
 	ret_front += '<p style="font-weight:bold;color:gray;">Total number of scopes to be converted: ' + totalsObj.num_of_scopes + '</p>'
 	ret_front += '<hr>'
 	retMsg = ret_front + retMsg;
+	
+	
+	dataset.createDataSource('svymig_scan');
+	
 	return { html: retMsg, csv: csv_data };
 }
