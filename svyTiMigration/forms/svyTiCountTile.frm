@@ -13,11 +13,11 @@ right:"15",
 top:"22",
 width:"164"
 },
-styleClass:"default-align h4",
+styleClass:"default-align h4 clickable svymig-card-title",
 text:"Grids"
 },
 name:"title",
-styleClass:"default-align h4",
+styleClass:"default-align h4 clickable svymig-card-title",
 typeName:"bootstrapcomponents-label",
 typeid:47,
 uuid:"0F16FF5F-8EAE-451C-B24B-00D04324F0ED"
@@ -91,10 +91,10 @@ right:"0",
 top:"0",
 width:"0"
 },
-styleClass:"default-align border-default box"
+styleClass:"default-align border-default box clickable"
 },
 name:"border",
-styleClass:"default-align border-default box",
+styleClass:"default-align border-default box clickable",
 typeName:"bootstrapcomponents-label",
 typeid:47,
 uuid:"46D1C857-2604-4E27-BE2D-E0E4D5F1A69A"
