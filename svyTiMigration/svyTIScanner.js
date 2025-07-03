@@ -61,6 +61,75 @@ function checkServoyDirSolution(dir) {
 }
 
 /**
+ * @return {{header:{},body:{frm_elements:Array<Object>},footer:{}}}
+ * @properties={typeid:24,uuid:"1C7771BF-9746-4D01-B255-0AC4021812E8"}
+ */
+function getFormJSON(frm_data) {
+	//if we have a table view, try to identify how many fields are part of body
+	try {
+		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.indexOf(']') - 1) + ']'
+		frm_data = frm_data.replace(/:",/g, '",').replace(/[\n\r\t]/gm, "");
+		/** @type {Array<Object>} */
+		var fp = JSON.parse(frm_data.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":'));
+		var json_data_parts = { header: { frm_elements: [] }, footer: { frm_elements: [] }, body: { frm_elements: [] } };
+
+		//get title,foot,body parts of elements (important for table views)
+		for (var i = 0; i < fp.length; i++) {
+			if (fp[i].partType) {
+				if (fp[i].partType == 1) {
+					json_data_parts.header = fp[i];
+					json_data_parts.header.frm_elements = [];
+				}
+				if (fp[i].partType == 5) {
+					json_data_parts.body = fp[i];
+					json_data_parts.body.frm_elements = [];
+				}
+				if (fp[i].partType == 8) {
+					json_data_parts.footer = fp[i];
+					json_data_parts.footer.frm_elements = [];
+				}
+			}
+		}
+		var hy = json_data_parts.header.height;
+		var by = json_data_parts.body.height;
+		var fy = json_data_parts.footer.height;
+		for (i = 0; i < fp.length; i++) {
+			if (!fp[i].partType) {
+				//				application.output(fp[i].location)
+				var ly = 0;
+				if (fp[i].location) {
+					ly = Number(fp[i].location.split(',')[1]);
+				}
+				var sh = 20;
+				if (fp[i].size) {
+					sh = fp[i].size.split(',')[1];
+				}
+				//check if element is part of header footer or body
+				//check if part of header
+				if ( ( (hy - ly) - sh) >= 0) {
+					json_data_parts.header.frm_elements.push( (fp[i]))
+					continue;
+				}
+
+				if ( ( (by - ly) - sh) >= 0) {
+					json_data_parts.body.frm_elements.push( (fp[i]))
+					continue;
+				}
+
+				if ( ( (fy - ly) - sh) >= 0) {
+					json_data_parts.footer.frm_elements.push( (fp[i]))
+					continue;
+				}
+			}
+		}
+
+	} catch (e) {
+		application.output(e)
+	}
+	return json_data_parts;
+}
+
+/**
  * Get forms from a solution
  * @properties={typeid:24,uuid:"8767282A-892E-4E63-A30D-9780890A6274"}
  */
@@ -79,14 +148,21 @@ function getStructure(dir) {
 					fobj[ (f[j].getName()).split('.frm')[0]].frm = plugins.file.readTXTFile(f[j]);
 					for (var k = 0; k < dictionary_frm_events.length; k++) {
 						var ctn = dictionary_frm_events[k];
-
+						var tbl_cols = 0; //if we have a table view, count num of cols
 						var ct = fobj[ (f[j].getName()).split('.frm')[0]].frm.toLowerCase().split(dictionary_frm_events[k].toLowerCase()).length - 1;
 						if (ct > 0) {
 							if (ctn == 'view:1' || ctn == 'view:4') ctn = 'List View';
-							if (ctn == 'view:3') ctn = 'Table View';
+							if (ctn == 'view:3') {
+								ctn = 'Table View';
+								var num_of_table_columns = getFormJSON(fobj[ (f[j].getName()).split('.frm')[0]].frm).body.frm_elements.length
+								tbl_cols = num_of_table_columns;
+							}
 
 							if (!fobj[ (f[j].getName()).split('.frm')[0]].frm_flags) fobj[f[j].getName().split('.frm')[0]].frm_flags = { }
 							fobj[ (f[j].getName()).split('.frm')[0]].frm_flags[ctn] = ct;
+							if (tbl_cols) {
+								fobj[ (f[j].getName()).split('.frm')[0]].frm_flags['columns'] = tbl_cols;
+							}
 						}
 					}
 				}
@@ -157,7 +233,7 @@ function getStructure(dir) {
  * @properties={typeid:24,uuid:"BAF0DDDD-C00B-469B-8B93-0FE8A933C57C"}
  */
 function scan(dir) {
-	
+
 	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity']);
 
 	var totalsObj = { num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
@@ -197,7 +273,8 @@ function scan(dir) {
 	//Inline html
 	dictionary = dictionary.concat(['<html>', '<style>']); //medium complexity
 
-	function updateComplexity(v, ct, tally_obj) {
+	function updateComplexity(v, marker_obj, tally_obj) {
+		var ct = marker_obj[v]
 		//		application.output('update complexity:' + v)
 		var dict_complexity = {
 			low: ['Table View', 'List View'],
@@ -210,6 +287,22 @@ function scan(dir) {
 
 		};
 
+		if (v == 'Table View') {
+
+			if (marker_obj.columns >= 20) {
+				tally_obj.complexity_high += ct;
+				return 'high';
+			}
+
+			if (marker_obj.columns >= 10) {
+				tally_obj.complexity_medium += ct;
+				return 'high';
+			}
+
+			tally_obj.complexity_low += ct;
+			return 'low';
+
+		}
 		if (dict_complexity.low.indexOf(v) != -1) {
 			tally_obj.complexity_low += ct;
 			return 'low';
@@ -245,18 +338,18 @@ function scan(dir) {
 		getStructure(servoySolutions[j]);
 		//		break;
 	}
-	
-	var solutionName;;
+
+	var solutionName;
+	;
 	var scopeName;
 	var featureName;
 	var weight;
-	
 
 	//remove forms that don't have any flags
 	retMsg += '<p style="font-weight:bold;">SCAN RESULT DETAILS : <p><hr>'
 	for (i in servoySolutionsObj) {
 		//		retMsg += '<hr>'
-		
+
 		solutionName = servoySolutionsObj[i].name;
 		retMsg += '<p style="font-weight:bold;">'
 		retMsg += 'Solution : ' + solutionName + ''
@@ -289,18 +382,18 @@ function scan(dir) {
 
 			var flag_ct = 0;
 			var list_or_table_ct = 0;
-			
+
 			// check scopes
 			for (f in servoySolutionsObj[i].scopes) {
 				if (servoySolutionsObj[i].scopes[f].js_flags) {
 					var ff_obj = { }
 					if (!ff_obj[f]) ff_obj[f] = [];
-					
+
 					// set scopeName
 					scopeName = f;
-					
+
 					for (var g in servoySolutionsObj[i].scopes[f].js_flags) {
-						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags[g], totalsObj)
+						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags, totalsObj)
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].scopes[f].js_flags[g] + '</b> time(s). ');
 							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
@@ -309,10 +402,10 @@ function scan(dir) {
 							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
 						}
 						flag_ct += servoySolutionsObj[i].scopes[f].js_flags[g];
-						
+
 						featureName = g;
 						weight = _cc;
-						
+
 						dataset.addRow([solutionName, scopeName, featureName, weight])
 					}
 					for (var h in ff_obj) {
@@ -328,12 +421,12 @@ function scan(dir) {
 			for (f in servoySolutionsObj[i].forms) {
 				ff_obj = { }
 				if (servoySolutionsObj[i].forms[f].js_flags) {
-					
+
 					// set scopeName
 					scopeName = f;
-					
+
 					for (g in servoySolutionsObj[i].forms[f].js_flags) {
-						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags[g], totalsObj)
+						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags, totalsObj)
 						if (!ff_obj[f]) ff_obj[f] = [];
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].forms[f].js_flags[g] + '</b> time(s). ');
@@ -344,10 +437,10 @@ function scan(dir) {
 						}
 
 						flag_ct += servoySolutionsObj[i].forms[f].js_flags[g];
-						
+
 						featureName = g;
 						weight = _cc;
-						
+
 						dataset.addRow([solutionName, scopeName, featureName, weight])
 					}
 					for (h in ff_obj) {
@@ -362,25 +455,26 @@ function scan(dir) {
 				if (servoySolutionsObj[i].forms[f].frm_flags) {
 					ff_obj = { }
 					for (g in servoySolutionsObj[i].forms[f].frm_flags) {
-						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].frm_flags[g], totalsObj)
-						if (!ff_obj[f]) ff_obj[f] = [];
-						if (g == 'Table View' || g == 'List View') {
-							ff_obj[f].push(g + ' found. ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;' + _cc + ';\n';
-							list_or_table_ct++;
-						} else {
-							if (ff_obj[f].indexOf(g) == -1) {
-								ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].frm_flags[g] + '</b> time(s). ');
-								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';' + _cc + '\n';
+						if (g != 'columns') {
+							_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].frm_flags, totalsObj)
+							if (!ff_obj[f]) ff_obj[f] = [];
+							if (g == 'Table View' || g == 'List View') {
+								ff_obj[f].push(g + ' found. ');
+								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;' + _cc + ';\n';
+								list_or_table_ct++;
+							} else {
+								if (ff_obj[f].indexOf(g) == -1) {
+									ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].frm_flags[g] + '</b> time(s). ');
+									csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';' + _cc + '\n';
+								}
+								flag_ct += servoySolutionsObj[i].forms[f].frm_flags[g];
 							}
-							flag_ct += servoySolutionsObj[i].forms[f].frm_flags[g];
-						}
-						
-						featureName = g;
-						weight = _cc;
-						
-						dataset.addRow([solutionName, scopeName, featureName, weight])
 
+							featureName = g;
+							weight = _cc;
+
+							dataset.addRow([solutionName, scopeName, featureName, weight])
+						}
 					}
 
 					for (h in ff_obj) {
@@ -424,9 +518,8 @@ function scan(dir) {
 	ret_front += '<p style="font-weight:bold;color:gray;">Total number of scopes to be converted: ' + totalsObj.num_of_scopes + '</p>'
 	ret_front += '<hr>'
 	retMsg = ret_front + retMsg;
-	
-	
+
 	dataset.createDataSource('svymig_scan');
-	
+
 	return { html: retMsg, csv: csv_data };
 }
