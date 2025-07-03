@@ -52,7 +52,7 @@ top:"17",
 width:"200"
 }
 },
-name:"formcomponentcontainer_23c",
+name:"fcTotal",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"386BAE84-B50C-4CE1-A5AF-5FBFA33CC2B6"
@@ -93,7 +93,7 @@ top:"17",
 width:"200"
 }
 },
-name:"formcomponentcontainer_20c",
+name:"fcOnRender",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"5785B60F-BE7E-4840-9D4E-5FFE7AEECCDF"
@@ -121,7 +121,7 @@ cssPosition:"15,-1,-1,232,200,120",
 json:{
 containedForm:{
 border:{
-
+onActionMethodID:"C751670C-B8AF-4363-A64D-96B3E1F188CD"
 },
 countMigrated:{
 dataProviderID:"countListsMigrated"
@@ -140,6 +140,7 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
+onActionMethodID:"C751670C-B8AF-4363-A64D-96B3E1F188CD",
 text:"Lists"
 }
 },
@@ -152,7 +153,7 @@ top:"15",
 width:"200"
 }
 },
-name:"formcomponentcontainer_19",
+name:"fcLists",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"8E386F77-6619-4A10-A583-078412CB8D9B"
@@ -193,7 +194,7 @@ top:"15",
 width:"200"
 }
 },
-name:"formcomponentcontainer_18",
+name:"fcTables",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"9A0740C5-6AC1-4CDE-92D4-673A2B4DA6BA"
@@ -241,7 +242,7 @@ top:"17",
 width:"200"
 }
 },
-name:"formcomponentcontainer_20",
+name:"fcBeans",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"F86DAD2D-0B93-4A18-831E-F909C3DC8F9D"
@@ -249,6 +250,7 @@ uuid:"F86DAD2D-0B93-4A18-831E-F909C3DC8F9D"
 ],
 name:"svyTiMigration$FormDashbobard",
 navigatorID:"-1",
+onLoadMethodID:"DF76FD44-CF87-4796-91E5-86332F04B1AB",
 onShowMethodID:"9089C6EC-D348-49AF-A624-728DBF2B20EB",
 showInMenu:true,
 size:"1137,480",
