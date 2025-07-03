@@ -33,6 +33,11 @@ var dictionary_beans = [];
 var servoySolutionsObj = { };
 
 /**
+ * @properties={typeid:35,uuid:"A0AB5FF2-80EE-474F-90DF-7834E49FE0B1",variableType:-4}
+ */
+var dictionary_complexity = { }
+
+/**
  * @properties={typeid:24,uuid:"DB14E1A5-3233-44D6-BB30-87C631D65B2F"}
  */
 function showScan() {
@@ -148,46 +153,79 @@ function getStructure(dir) {
 }
 /**
  * @param dir
- * @return
+ * @return {{html:String, csv:String}}
  * @properties={typeid:24,uuid:"BAF0DDDD-C00B-469B-8B93-0FE8A933C57C"}
  */
 function scan(dir) {
+
+	var totalsObj = { num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
-	var csv_data = 'Solution;Source;Flag;# times found\n';
+	var csv_data = 'Solution;Source;Flag;# times found;complexity\n';
 	servoySolutions = [];
 	servoySolutionsObj = { };
 	ignore = ['.git', '.gitignore', '.settings', 'svyUtils', 'svyUtils$Excel', 'svyUtils$customDialogs', 'svyUtils$smartClient', 'svyUtils$tableGrid', 'servoyCommonsExample', 'svy_mod_dialogs'];
 	dictionary = [];
 
 	//Deprecated Functionalities
-	dictionary = dictionary.concat(['Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle']);
+	dictionary = dictionary.concat(['Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle']); //blockers
 
 	//Print and Reports
-	dictionary = dictionary.concat(['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable']);
+	dictionary = dictionary.concat(['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable']); //blocker
 
 	//Java Functions
-	dictionary = dictionary.concat(['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc']);
+	dictionary = dictionary.concat(['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc']); //high complexity
 
 	//Plugins and working with files
-	dictionary = dictionary.concat(['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write', 'Plugins.file.createFolder']);
+	dictionary = dictionary.concat(['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write', 'Plugins.file.createFolder']); //high complexity
 
 	//OnRender Events
-	dictionary_frm_events = ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand']
+	dictionary_frm_events = ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'] //low complexity
 	dictionary = dictionary.concat(dictionary_frm_events);
 
 	//solution Model
-	dictionary = dictionary.concat(['solutionModel']);
+	dictionary = dictionary.concat(['solutionModel']); //high complexity
 
 	//Beans
-	dictionary_beans = ['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea'];
+	dictionary_beans = ['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea']; //high complexity
 	dictionary_frm_events = dictionary_frm_events.concat(dictionary_beans)
 
 	//add views
-	dictionary_frm_events = dictionary_frm_events.concat(['view:1', 'view:3', 'view:4']) //table view, list view, list view (locked)
+	dictionary_frm_events = dictionary_frm_events.concat(['view:1', 'view:3', 'view:4']) //table view, list view, list view (locked) low complexity
 
 	//Inline html
-	dictionary = dictionary.concat(['<html>', '<style>']);
-	//	dictionary = [];
+	dictionary = dictionary.concat(['<html>', '<style>']); //medium complexity
+
+	function updateComplexity(v, ct, tally_obj) {
+		//		application.output('update complexity:' + v)
+		var dict_complexity = {
+			low: ['Table View', 'List View'],
+
+			medium: ['HTML inline tag used', '<html>', '<style>', 'onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'],
+
+			high: ['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea', 'Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write', 'Plugins.file.createFolder', 'solutionModel', 'Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc'],
+
+			blocker: ['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable', 'Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle']
+
+		};
+
+		if (dict_complexity.low.indexOf(v) != -1) {
+			tally_obj.complexity_low += ct;
+			return 'low';
+		}
+		if (dict_complexity.medium.indexOf(v) != -1) {
+			tally_obj.complexity_medium += ct;
+			return 'medium';
+		}
+		if (dict_complexity.high.indexOf(v) != -1) {
+			tally_obj.complexity_high += ct;
+			return 'high';
+		}
+		if (dict_complexity.blocker.indexOf(v) != -1) {
+			tally_obj.complexity_blocker += ct;
+			return 'blocker';
+		}
+		return 'unknown'
+	}
 
 	//scan first for servoy solutions
 	var d = plugins.file.getFolderContents(dir)
@@ -207,7 +245,7 @@ function scan(dir) {
 	}
 
 	//remove forms that don't have any flags
-	retMsg += '<p style="font-weight:bold;">SCAN RESULTS : <p><hr>'
+	retMsg += '<p style="font-weight:bold;">SCAN RESULT DETAILS : <p><hr>'
 	for (i in servoySolutionsObj) {
 		//		retMsg += '<hr>'
 		retMsg += '<p style="font-weight:bold;">'
@@ -215,6 +253,7 @@ function scan(dir) {
 		var num_forms_check = 0;
 
 		for (f in servoySolutionsObj[i].scopes) {
+			totalsObj.num_of_scopes++;
 			if (servoySolutionsObj[i].scopes[f].js_flags) {
 				num_forms_check++;
 			} else {
@@ -223,6 +262,7 @@ function scan(dir) {
 		}
 
 		for (var f in servoySolutionsObj[i].forms) {
+			totalsObj.num_of_forms++;
 			if (servoySolutionsObj[i].forms[f].js_flags) {
 				num_forms_check++;
 			} else {
@@ -236,7 +276,6 @@ function scan(dir) {
 			}
 		}
 		if (num_forms_check > 0) {
-			//			retMsg += '<hr>';
 
 			var flag_ct = 0;
 			var list_or_table_ct = 0;
@@ -245,12 +284,13 @@ function scan(dir) {
 					var ff_obj = { }
 					if (!ff_obj[f]) ff_obj[f] = [];
 					for (var g in servoySolutionsObj[i].scopes[f].js_flags) {
+						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags[g], totalsObj)
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].scopes[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
 						} else {
 							ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].scopes[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
 						}
 						flag_ct += servoySolutionsObj[i].scopes[f].js_flags[g];
 					}
@@ -268,13 +308,14 @@ function scan(dir) {
 				ff_obj = { }
 				if (servoySolutionsObj[i].forms[f].js_flags) {
 					for (g in servoySolutionsObj[i].forms[f].js_flags) {
+						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags[g], totalsObj)
 						if (!ff_obj[f]) ff_obj[f] = [];
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].forms[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].forms[f].js_flags[g] + ';\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + '\n';
 						} else {
 							ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].js_flags[g] + '</b> time(s). ')
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].forms[f].js_flags[g] + ';\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + '\n';
 						}
 
 						flag_ct += servoySolutionsObj[i].forms[f].js_flags[g];
@@ -291,15 +332,16 @@ function scan(dir) {
 				if (servoySolutionsObj[i].forms[f].frm_flags) {
 					ff_obj = { }
 					for (g in servoySolutionsObj[i].forms[f].frm_flags) {
+						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].frm_flags[g], totalsObj)
 						if (!ff_obj[f]) ff_obj[f] = [];
 						if (g == 'Table View' || g == 'List View') {
-							ff_obj[f].push(g + ' found. ');			
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;\n';
+							ff_obj[f].push(g + ' found. ');
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;' + _cc + ';\n';
 							list_or_table_ct++;
-						} else {							
+						} else {
 							if (ff_obj[f].indexOf(g) == -1) {
 								ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].frm_flags[g] + '</b> time(s). ');
-								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';\n';
+								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';' + _cc + '\n';
 							}
 							flag_ct += servoySolutionsObj[i].forms[f].frm_flags[g];
 						}
@@ -323,8 +365,9 @@ function scan(dir) {
 			}
 			retMsg += '<p style="font-weight:bold;color:red;">Total Number of flags found : ' + flag_ct + '</p>'
 
+			totalsObj.total_num_flags += flag_ct;
+			totalsObj.total_num_flags += list_or_table_ct;
 		} else {
-			//			retMsg += '<hr>'
 			retMsg += '<p style="font-weight:bold;color:green;">No flags found!</p>'
 		}
 
@@ -332,6 +375,19 @@ function scan(dir) {
 		retMsg += '\n'
 		retMsg += '\n'
 
-	}	
-	return {html:retMsg, csv:csv_data};
+	}
+
+	//get summary
+	var ret_front = '';
+	ret_front += '<p style="font-weight:bold;">SCAN RESULT SUMMARY : <p><hr>';
+	ret_front += '<p style="font-weight:bold;color:teal;">Total number of low complexity items: ' + totalsObj.complexity_low + '</p>'
+	ret_front += '<p style="font-weight:bold;color:#835501;">Total number of medium complexity items: ' + totalsObj.complexity_medium + '</p>'
+	ret_front += '<p style="font-weight:bold;color:#ff7600;">Total number of high complexity items: ' + totalsObj.complexity_high + '</p>'
+	ret_front += '<p style="font-weight:bold;color:red;">Total number of blocking complexity items: ' + totalsObj.complexity_blocker + '</p>'
+	ret_front += '<p style="font-weight:bold;color:gray;">Total number of items flagged: ' + totalsObj.total_num_flags + '</p>'
+	ret_front += '<p style="font-weight:bold;color:gray;">Total number of forms to be converted: ' + totalsObj.num_of_forms + '</p>'
+	ret_front += '<p style="font-weight:bold;color:gray;">Total number of scopes to be converted: ' + totalsObj.num_of_scopes + '</p>'
+	ret_front += '<hr>'
+	retMsg = ret_front + retMsg;
+	return { html: retMsg, csv: csv_data };
 }

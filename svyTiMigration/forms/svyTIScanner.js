@@ -12,7 +12,6 @@ var msg = '';
  */
 var dir = null;
 
-
 /**
  * Fired when the button is clicked.
  *
@@ -22,22 +21,21 @@ var dir = null;
  */
 function onAction$scan(event) {
 	var data = scopes.svyTIScanner.scan(dir);
-	msg = '<html><style> .bts-label-text {width:100%};</style> <style>p { margin-bottom: 2px;margin-top: 2px;}</style> <span style="border-radius:10px; padding:2px; border:0px solid gray;overflow-y:scroll;display:block;max-height:calc(100vh - 90px);">'+data.html+'</span></html>'
-	
-	var tmpdir = Packages.java.lang.System.getProperty("java.io.tmpdir");	
-	var f = plugins.file.createFile(tmpdir+'/scan_results.html')	
-	plugins.file.appendToTXTFile(f,msg.replace('max-height:calc(100vh - 90px);','').replace('overflow-y:scroll;',''));			
-	f.createNewFile();	
-	application.showURL(createRemoteFile(f),'_blank');
-	
-	//csv data
-	var f2 = plugins.file.createFile(tmpdir+'/scan_results.csv')
-	plugins.file.appendToTXTFile(f2,data.csv);		
-	f2.createNewFile();
-	application.showURL(createRemoteFile(f2),'_blank');
-	
-}
+	msg = '<html><style> .bts-label-text {width:100%};</style> <style>p { margin-bottom: 2px;margin-top: 2px;}</style> <span style="border-radius:10px; padding:2px; border:0px solid gray;overflow-y:scroll;display:block;max-height:calc(100vh - 90px);">' + data.html + '</span></html>'
 
+	var tmpdir = Packages.java.lang.System.getProperty("java.io.tmpdir");
+	var f = plugins.file.createFile(tmpdir + '/scan_results.html')
+	plugins.file.writeTXTFile(f, msg.replace('max-height:calc(100vh - 90px);', '').replace('overflow-y:scroll;', ''));
+	f.createNewFile();
+	application.showURL(createRemoteFile(f), '_blank');
+
+	//csv data
+	var f2 = plugins.file.createFile(tmpdir + '/scan_results.csv')
+	plugins.file.writeTXTFile(f2, data.csv);
+	f2.createNewFile();
+	application.showURL(createRemoteFile(f2), '_blank');
+
+}
 
 /**
  * @param file
