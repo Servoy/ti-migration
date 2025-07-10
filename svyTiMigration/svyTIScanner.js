@@ -38,6 +38,23 @@ var servoySolutionsObj = { };
 var dictionary_complexity = { }
 
 /**
+ * @public
+ * @return {String}
+ *
+ *
+ * @properties={typeid:24,uuid:"EA9B6BB1-E144-4912-B77A-325681F75C56"}
+ */
+function getWorkspacePath() {
+    var workspacePath = java.lang.System.getProperty("osgi.instance.area");
+    //Can't use scopes.svySystem.. that is also controlled by browser
+    if (/Windows/.test(application.getOSName())) {
+        return workspacePath.substr(6, workspacePath.length);
+    } else {
+        return workspacePath.substr(5, workspacePath.length);
+    }
+}
+
+/**
  * @properties={typeid:24,uuid:"DB14E1A5-3233-44D6-BB30-87C631D65B2F"}
  */
 function showScan() {
@@ -66,12 +83,12 @@ function checkServoyDirSolution(dir) {
  */
 function getFormJSON(frm_data) {
 	//if we have a table view, try to identify how many fields are part of body
+	var json_data_parts = { header: { frm_elements: [] }, footer: { frm_elements: [] }, body: { frm_elements: [] } };
 	try {
 		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.indexOf(']') - 1) + ']'
 		frm_data = frm_data.replace(/:",/g, '",').replace(/[\n\r\t]/gm, "");
 		/** @type {Array<Object>} */
 		var fp = JSON.parse(frm_data.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":'));
-		var json_data_parts = { header: { frm_elements: [] }, footer: { frm_elements: [] }, body: { frm_elements: [] } };
 
 		//get title,foot,body parts of elements (important for table views)
 		for (var i = 0; i < fp.length; i++) {
@@ -228,13 +245,15 @@ function getStructure(dir) {
 	}
 }
 /**
- * @param dir
+ * @param [dir] use default workspace if not specified
  * @return {{html:String, csv:String}}
  * @properties={typeid:24,uuid:"BAF0DDDD-C00B-469B-8B93-0FE8A933C57C"}
  */
 function scan(dir) {
+	
+	if (!dir) dir = getWorkspacePath();
 
-	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity']);
+	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype']);
 
 	var totalsObj = { num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
@@ -340,8 +359,8 @@ function scan(dir) {
 	}
 
 	var solutionName;
-	;
 	var scopeName;
+	var scopeType;
 	var featureName;
 	var weight;
 
@@ -391,6 +410,7 @@ function scan(dir) {
 
 					// set scopeName
 					scopeName = f;
+					scopeType = 'scopes';
 
 					for (var g in servoySolutionsObj[i].scopes[f].js_flags) {
 						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags, totalsObj)
@@ -424,6 +444,7 @@ function scan(dir) {
 
 					// set scopeName
 					scopeName = f;
+					scopeType = 'form.js';
 
 					for (g in servoySolutionsObj[i].forms[f].js_flags) {
 						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags, totalsObj)
@@ -441,7 +462,7 @@ function scan(dir) {
 						featureName = g;
 						weight = _cc;
 
-						dataset.addRow([solutionName, scopeName, featureName, weight])
+						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
 					}
 					for (h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -454,6 +475,7 @@ function scan(dir) {
 
 				if (servoySolutionsObj[i].forms[f].frm_flags) {
 					ff_obj = { }
+					scopeType = 'form.frm'
 					for (g in servoySolutionsObj[i].forms[f].frm_flags) {
 						if (g != 'columns') {
 							_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].frm_flags, totalsObj)
@@ -473,7 +495,7 @@ function scan(dir) {
 							featureName = g;
 							weight = _cc;
 
-							dataset.addRow([solutionName, scopeName, featureName, weight])
+							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
 						}
 					}
 

@@ -27,6 +27,13 @@ creationOrderIndex:3,
 dataType:12,
 length:100,
 name:"complexity"
+},
+{
+allowNull:true,
+creationOrderIndex:4,
+dataType:12,
+length:50,
+name:"scopetype"
 }
 ],
 name:"svymig_scan",
