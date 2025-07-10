@@ -255,9 +255,9 @@ function scan(dir) {
 
 	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype']);
 
-	var totalsObj = { num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
+	var totalsObj = { num_of_tables_or_lists: 0, num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
-	var csv_data = 'Solution;Source;Flag;# times found;complexity\n';
+	var csv_data = 'Solution;Source;Flag;# times found;complexity;notes\n';
 	servoySolutions = [];
 	servoySolutionsObj = { };
 	ignore = ['.git', '.gitignore', '.settings', 'svyUtils', 'svyUtils$Excel', 'svyUtils$customDialogs', 'svyUtils$smartClient', 'svyUtils$tableGrid', 'servoyCommonsExample', 'svy_mod_dialogs'];
@@ -341,6 +341,43 @@ function scan(dir) {
 		return 'unknown'
 	}
 
+	function getNotes(v) {
+		//		application.output(v);
+		switch (v) {
+		case '<html>':
+			return 'Need to review usage.';
+		case 'onRender':
+			return 'Must be rewritten as on Render no longer supported.'
+		case 'Table View':
+			return 'Need to be converted as this view no longer supported.  Complexity increases with number of fields/columns on form.'
+		case 'List View':
+			return 'Need to be converted as this view no longer supported.  Complexity increases with number of fields/columns on form.'
+		case 'Plugins.file':
+			return 'Depending on usage we may need to rewrite code.  If server side use only then should be less complex.'
+		case 'Plugins.file.write':
+			return 'Depending on usage we may need to rewrite code.  If server side use only then should be less complex.'
+		case 'Plugins.file.showFileOpenDialog':
+			return 'Good chance we may need to rewrite code or use different component'
+		case 'Plugins.file.createFolder':
+			return 'Depending on usage we may need to rewrite code.  If server side use only then should be less complex.  Watch out for references to directories that no longer exist etc...'
+		case 'APPLICATION_TYPES.WEB_CLIENT':
+			return 'No longer supported.  Must Review references and likely update code.'
+		case 'APPLICATION_TYPES.SMART_CLIENT':
+			return 'No longer supported.  Must Review references and likely update code.'
+		case 'Plugins.window.getMenuBar':
+			return 'No longer supported.  Must Review references and likely update code.'
+		case 'Plugins.jasperPluginRMI':
+			return 'Need to review plugin versions and also reports to make sure compatible.'
+		case 'i18n.setTimeZone':
+			return 'Need to review code/use as this is not applicable in newer clients.'
+		case 'solutionModel':
+			return 'Need to review code/use closely if it interacts with elements, likely need to update code.'
+		default:
+			break;
+		}
+		return '';
+	}
+
 	//scan first for servoy solutions
 	var d = plugins.file.getFolderContents(dir)
 	for (var i = 0; i < d.length; i++) {
@@ -414,12 +451,13 @@ function scan(dir) {
 
 					for (var g in servoySolutionsObj[i].scopes[f].js_flags) {
 						var _cc = updateComplexity(g, servoySolutionsObj[i].scopes[f].js_flags, totalsObj)
+						var notes = getNotes(g)
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].scopes[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + ';' + notes + '\n';
 						} else {
 							ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].scopes[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + '\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].scopes[f].js_flags[g] + ';' + _cc + ';' + notes + '\n';
 						}
 						flag_ct += servoySolutionsObj[i].scopes[f].js_flags[g];
 
@@ -447,14 +485,15 @@ function scan(dir) {
 					scopeType = 'form.js';
 
 					for (g in servoySolutionsObj[i].forms[f].js_flags) {
-						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags, totalsObj)
+						_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].js_flags, totalsObj);
+						notes = getNotes(g)
 						if (!ff_obj[f]) ff_obj[f] = [];
 						if (g == '<style>' || g == '<html>') {
 							ff_obj[f].push('HTML inline tag used <b>' + servoySolutionsObj[i].forms[f].js_flags[g] + '</b> time(s). ');
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + '\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;HTML inline tag used;' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + ';' + notes + '\n';
 						} else {
 							ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].js_flags[g] + '</b> time(s). ')
-							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + '\n';
+							csv_data += servoySolutionsObj[i].name + ";" + f + '.js;' + g + ';' + servoySolutionsObj[i].forms[f].js_flags[g] + ';' + _cc + ';' + notes + '\n';
 						}
 
 						flag_ct += servoySolutionsObj[i].forms[f].js_flags[g];
@@ -478,16 +517,17 @@ function scan(dir) {
 					scopeType = 'form.frm'
 					for (g in servoySolutionsObj[i].forms[f].frm_flags) {
 						if (g != 'columns') {
+							notes = getNotes(g)
 							_cc = updateComplexity(g, servoySolutionsObj[i].forms[f].frm_flags, totalsObj)
 							if (!ff_obj[f]) ff_obj[f] = [];
 							if (g == 'Table View' || g == 'List View') {
 								ff_obj[f].push(g + ' found. ');
-								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;' + _cc + ';\n';
+								csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';1;' + _cc + ';' + notes + '\n';
 								list_or_table_ct++;
 							} else {
 								if (ff_obj[f].indexOf(g) == -1) {
 									ff_obj[f].push(g + ' used <b>' + servoySolutionsObj[i].forms[f].frm_flags[g] + '</b> time(s). ');
-									csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';' + _cc + '\n';
+									csv_data += servoySolutionsObj[i].name + ";" + f + '.frm;' + g + ';' + servoySolutionsObj[i].forms[f].frm_flags[g] + ';' + _cc + ';' + notes + '\n';
 								}
 								flag_ct += servoySolutionsObj[i].forms[f].frm_flags[g];
 							}
@@ -518,6 +558,7 @@ function scan(dir) {
 
 			totalsObj.total_num_flags += flag_ct;
 			totalsObj.total_num_flags += list_or_table_ct;
+			totalsObj.num_of_tables_or_lists += list_or_table_ct;
 		} else {
 			retMsg += '<p style="font-weight:bold;color:green;">No flags found!</p>'
 		}
@@ -537,6 +578,7 @@ function scan(dir) {
 	ret_front += '<p style="font-weight:bold;color:red;">Total number of blocking complexity items: ' + totalsObj.complexity_blocker + '</p>'
 	ret_front += '<p style="font-weight:bold;color:gray;">Total number of items flagged: ' + totalsObj.total_num_flags + '</p>'
 	ret_front += '<p style="font-weight:bold;color:gray;">Total number of forms to be converted: ' + totalsObj.num_of_forms + '</p>'
+	ret_front += '<p style="font-weight:bold;color:gray;">Total number of table/list views to be converted: ' + totalsObj.num_of_tables_or_lists + '</p>'
 	ret_front += '<p style="font-weight:bold;color:gray;">Total number of scopes to be converted: ' + totalsObj.num_of_scopes + '</p>'
 	ret_front += '<hr>'
 	retMsg = ret_front + retMsg;
