@@ -85,10 +85,13 @@ function getFormJSON(frm_data) {
 	//if we have a table view, try to identify how many fields are part of body
 	var json_data_parts = { header: { frm_elements: [] }, footer: { frm_elements: [] }, body: { frm_elements: [] } };
 	try {
-		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.indexOf(']') - 1) + ']'
+		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.lastIndexOf(']') - 1) + ']'
 		frm_data = frm_data.replace(/:",/g, '",').replace(/[\n\r\t]/gm, "");
+		frm_data = frm_data.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":');
+		frm_data = frm_data.replace(/\\/g, "\\\\");
+		
 		/** @type {Array<Object>} */
-		var fp = JSON.parse(frm_data.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":'));
+		var fp = JSON.parse(frm_data);
 
 		//get title,foot,body parts of elements (important for table views)
 		for (var i = 0; i < fp.length; i++) {
@@ -140,8 +143,9 @@ function getFormJSON(frm_data) {
 			}
 		}
 
-	} catch (e) {
-		application.output(e)
+	} catch (e) {		
+		application.output(e);
+		return json_data_parts;
 	}
 	return json_data_parts;
 }
@@ -171,7 +175,7 @@ function getStructure(dir) {
 							if (ctn == 'view:1' || ctn == 'view:4') ctn = 'List View';
 							if (ctn == 'view:3') {
 								ctn = 'Table View';
-								var num_of_table_columns = getFormJSON(fobj[ (f[j].getName()).split('.frm')[0]].frm).body.frm_elements.length
+								var num_of_table_columns = getFormJSON(fobj[ (f[j].getName()).split('.frm')[0]].frm).body.frm_elements.length																
 								tbl_cols = num_of_table_columns;
 							}
 
@@ -260,7 +264,7 @@ function scan(dir) {
 	var csv_data = 'Solution;Source;Flag;# times found;complexity;notes\n';
 	servoySolutions = [];
 	servoySolutionsObj = { };
-	ignore = ['.git', '.gitignore', '.settings', 'svyUtils', 'svyUtils$Excel', 'svyUtils$customDialogs', 'svyUtils$smartClient', 'svyUtils$tableGrid', 'servoyCommonsExample', 'svy_mod_dialogs'];
+	ignore = ['.git', '.gitignore', '.settings', 'svyTiMigration', 'svyUtils', 'svyUtils$Excel', 'svyUtils$customDialogs', 'svyUtils$smartClient', 'svyUtils$tableGrid', 'servoyCommonsExample', 'svy_mod_dialogs'];
 	dictionary = [];
 
 	//Deprecated Functionalities
@@ -463,7 +467,6 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-
 						dataset.addRow([solutionName, scopeName, featureName, weight])
 					}
 					for (var h in ff_obj) {
@@ -500,7 +503,6 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-
 						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
 					}
 					for (h in ff_obj) {
@@ -514,6 +516,7 @@ function scan(dir) {
 
 				if (servoySolutionsObj[i].forms[f].frm_flags) {
 					ff_obj = { }
+					scopeName = f;
 					scopeType = 'form.frm'
 					for (g in servoySolutionsObj[i].forms[f].frm_flags) {
 						if (g != 'columns') {
@@ -534,7 +537,6 @@ function scan(dir) {
 
 							featureName = g;
 							weight = _cc;
-
 							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
 						}
 					}
