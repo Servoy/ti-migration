@@ -78,21 +78,24 @@ function checkServoyDirSolution(dir) {
 }
 
 /**
- * @return {{header:{},body:{frm_elements:Array<Object>},footer:{}}}
+ * @return {{header:{frm_elements:Array<Object>},body:{frm_elements:Array<Object>},footer:{frm_elements:Array<Object>}}}
  * @properties={typeid:24,uuid:"1C7771BF-9746-4D01-B255-0AC4021812E8"}
  */
-function getFormJSON(frm_data) {
+function getFormJSON(frm_data) {	
 	//if we have a table view, try to identify how many fields are part of body
 	var json_data_parts = { header: { frm_elements: [] }, footer: { frm_elements: [] }, body: { frm_elements: [] } };
 	try {
-		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.lastIndexOf(']') - 1) + ']'
+//		frm_data = '[' + frm_data.substring(frm_data.indexOf('[') + 1, frm_data.lastIndexOf(']') - 1) + ']'
+		frm_data = '{' + frm_data + '}';
+//		application.output(frm_data)
 		frm_data = frm_data.replace(/:",/g, '",').replace(/[\n\r\t]/gm, "");
 		frm_data = frm_data.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":');
 		frm_data = frm_data.replace(/\\/g, "\\\\");
 		
 		/** @type {Array<Object>} */
-		var fp = JSON.parse(frm_data);
-
+		var frm_object = JSON.parse(frm_data);
+		var fp = frm_object.items;
+		
 		//get title,foot,body parts of elements (important for table views)
 		for (var i = 0; i < fp.length; i++) {
 			if (fp[i].partType) {
@@ -147,6 +150,7 @@ function getFormJSON(frm_data) {
 		application.output(e);
 		return json_data_parts;
 	}
+	
 	return json_data_parts;
 }
 
