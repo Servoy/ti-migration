@@ -15,6 +15,13 @@ uuid:"589170FC-9010-4C6F-B03F-74BA344C14CF"
 },
 {
 encapsulation:0,
+mimeType:"text/plain",
+name:"svyti_config/svyti_modules.txt",
+typeid:37,
+uuid:"6B85FBEF-29EE-4A75-81F4-48A3E9FC97E4"
+},
+{
+encapsulation:0,
 mimeType:"text/css",
 name:"svyTiMigration.less",
 typeid:37,
