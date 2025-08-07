@@ -1,14 +1,14 @@
 /**
  * @type {String}
  *
- * @properties={typeid:35,uuid:"D817E812-3326-4BBD-A69F-A11DC34D47AA"}
+ * @properties={typeid:35,uuid:"C975622F-940F-431B-AAB3-05FAC7F2C9AA"}
  */
 var msg = '';
 
 /**
  * @type {String}
  *
- * @properties={typeid:35,uuid:"C732E2D3-6E51-4DB9-8C2B-E5AF21E5863D"}
+ * @properties={typeid:35,uuid:"55484F2C-0856-489B-9CF7-F29040E1D871"}
  */
 var dir = scopes.svyTIScanner.getWorkspacePath();
 
@@ -17,13 +17,11 @@ var dir = scopes.svyTIScanner.getWorkspacePath();
  *
  * @param {JSEvent} event
  *
- * @properties={typeid:24,uuid:"16224AA6-864E-4B06-9138-13D1B13DBD4A"}
+ * @properties={typeid:24,uuid:"576DEA2B-E32C-4E11-877F-20203D88DF78"}
  */
 function onAction$scan(event) {
 	var data = scopes.svyTIScanner.scan(dir); 
-	
-	elements.powergrid_1.renderData(scopes.svyTIScanData.getScanDataSet())
-	
+//	return;
 	msg = '<html><style> .bts-label-text {width:100%};</style> <style>p { margin-bottom: 2px;margin-top: 2px;}</style> <span style="border-radius:10px; padding:2px; border:0px solid gray;overflow-y:scroll;display:block;max-height:calc(100vh - 90px);">' + data.html + '</span></html>'	
 	var tmpdir = Packages.java.lang.System.getProperty("java.io.tmpdir");
 	var f = plugins.file.createFile(tmpdir + '/scan_results.html')
@@ -41,7 +39,7 @@ function onAction$scan(event) {
 /**
  * @param file
  * @return {String}
- * @properties={typeid:24,uuid:"BCCDCC5B-B0E5-4615-9720-FADDE868297D"}
+ * @properties={typeid:24,uuid:"B38B35EC-FCF8-439B-8FC2-BE53E1AE4250"}
  */
 function createRemoteFile(file) {
 	var path = "/";
@@ -55,18 +53,4 @@ function createRemoteFile(file) {
 	var remoteFile = plugins.file.convertToRemoteJSFile(path + encodeURIComponent(fileName));
 	remoteFile.setBytes(file.getBytes(), true);
 	return plugins.file.getUrlForRemoteFile(path + encodeURIComponent(fileName));
-}
-
-/**
- * Callback method for when form is shown.
- *
- * @param {Boolean} firstShow form is shown first time after load
- * @param {JSEvent} event the event that triggered the action
- *
- * @protected
- *
- * @properties={typeid:24,uuid:"22BC93A5-EE5B-471A-BFC3-9F0E26F9BEDC"}
- */
-function onShow(firstShow, event) {
-	elements.powergrid_1.renderData(scopes.svyTIScanData.getScanDataSet())
 }

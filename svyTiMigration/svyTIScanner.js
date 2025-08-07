@@ -55,6 +55,15 @@ function getWorkspacePath() {
 }
 
 /**
+ * @return {String}
+ * @properties={typeid:24,uuid:"E25113B1-A42A-47B7-830A-3DC86AC2D837"}
+ */
+function getFileSeperator()
+{
+	return java.io.File.separator;
+}
+
+/**
  * @properties={typeid:24,uuid:"DB14E1A5-3233-44D6-BB30-87C631D65B2F"}
  */
 function showScan() {
