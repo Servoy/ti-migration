@@ -43,6 +43,13 @@ width:"0"
 },
 menu:[
 {
+formName:"96920C1A-2876-4F08-B1ED-D6F1C2D647A6",
+iconStyleClass:"fa-solid fa-earth-america",
+id:"general",
+svyUUID:"B74FFB47-70BF-4A10-B5DE-5A6C83A29417",
+text:"General"
+},
+{
 formName:"99C40B9D-F32A-4C9D-8F33-7EE789778700",
 iconStyleClass:"fa-brands fa-html5",
 id:"forms",
