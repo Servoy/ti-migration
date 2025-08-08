@@ -31,6 +31,13 @@ var countAbstractForms = 0;
 /**
  * @type {Number}
  *
+ * @properties={typeid:35,uuid:"5E665727-4437-47A2-BFC6-40B6729F85A6",variableType:4}
+ */
+var countStyles = 0;
+
+/**
+ * @type {Number}
+ *
  * @properties={typeid:35,uuid:"6A33AB70-D547-4E52-B9A3-B31283A3CD34",variableType:4}
  */
 var countGrids = 0;
@@ -175,6 +182,7 @@ function onShow(firstShow, event) {
 
 	countForms = scopes.svyTiAnalyzer.getAllFormsWithUI()
 	countAbstractForms = scopes.svyTiAnalyzer.getAllAbstractForms()
+	countStyles = scopes.svyTiAnalyzer.getAllStyles().length;
 	countBeans = scopes.svyTiAnalyzer.getAllBeans().length;
 	countGrids = scopes.svyTiAnalyzer.getAllTableForms().length;
 	countLists = scopes.svyTiAnalyzer.getAllListsForms().length;
@@ -303,3 +311,72 @@ function selectView(cat) {
 function onLoad(event) {
 	selectView(CATEGORY.TABLE)
 }
+
+
+/**
+ * @param {Array} data
+ * @param {String} title
+ *
+ * @properties={typeid:24,uuid:"35F8FE9B-2CD1-4CB4-8DCB-EEC0BECF8891"}
+ */
+function fillGrid(data, title) {
+	
+	while (elements.grid.columns && elements.grid.columns.length) {
+		elements.grid.deleteColumn(elements.grid.columns[0].id)
+	}
+	
+	var columns = []
+	if (data.length) {
+		var obj = data[0];
+		var dataset = databaseManager.createEmptyDataSet();
+		for (var key in obj) {
+			dataset.addColumn(key);
+			var col = elements.grid.newColumn(key);
+			col.id = key
+			col.dataprovider = key;
+			columns.push(key)
+		}
+		var colNames = dataset.getColumnNames()
+		
+		for (var i = 0; i < data.length; i++) {
+			obj = data[i];
+			var row = [];
+			for (var j = 0; j < colNames.length; j++) {
+				var value = obj[colNames[j]] ? obj[colNames[j]] : ''
+				row.push(value)
+			}
+			dataset.addRow(row)
+		}
+		
+		elements.grid.renderData(dataset)
+		
+	}
+
+}
+
+/**
+ * Click event. dataTarget parameter is used to identify inner html elements (by their data-target attribute).
+ *
+ * @param {JSEvent} event
+ * @param {String} dataTarget
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"F02929E9-F8EF-4F1E-8870-C187A95386B3"}
+ */
+function onActionBeans(event, dataTarget) {
+	fillGrid(scopes.svyTiAnalyzer.getAllBeans(), 'Beans')
+}
+
+/**
+ * Click event. dataTarget parameter is used to identify inner html elements (by their data-target attribute).
+ *
+ * @param {JSEvent} event
+ * @param {String} dataTarget
+ *
+ * @properties={typeid:24,uuid:"2D908988-B29F-4645-B5DB-FA6334B745C6"}
+ */
+function onActionRTF(event, dataTarget) {
+	fillGrid(scopes.svyTiAnalyzer.getRTFDataProviders(), 'RTF')
+}
+

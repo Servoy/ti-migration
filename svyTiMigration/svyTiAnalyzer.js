@@ -1,6 +1,6 @@
 /**
  * @return {Number}
- * @properties={typeid:24,uuid:"6C0ACB01-F16C-4D0D-8E96-618F46C8CB4C"}
+ * @properties={typeid:24,uuid:"A645791A-100A-45E8-9C35-A8825F490416"}
  */
 function getAllFormsWithUI() {
 	var count = 0;
@@ -13,6 +13,25 @@ function getAllFormsWithUI() {
 	});
 
 	return count;
+}
+
+/**
+ * @return {Array<String>}
+ * @properties={typeid:24,uuid:"13754A10-6834-4614-92CC-1BAFFB0D11EF"}
+ */
+function getAllStyles() {
+	var styles = [];
+
+	solutionModel.getForms().forEach(/** @param {JSForm} f */
+	function(f) {
+		if (f.styleName) {
+			if (!styles.includes(f.styleName)) {
+				styles.push(f.styleName)
+			}
+		}
+	});
+
+	return styles;
 }
 
 /**
@@ -273,10 +292,10 @@ function getRTFDataProviders() {
 			if (solutionModel.getRelation(relationName)) {
 				dataSource = solutionModel.getRelation(relationName).foreignDataSource;
 			} else {
-				dataSource = forms[rtfField.formName]
+				dataSource = forms[rtfField.formName].foundset.getDataSource()
 			}
 		} else {
-			dataSource = forms[rtfField.formName]
+			dataSource = forms[rtfField.formName].foundset.getDataSource()
 		}
 
 		if (!dataSource) {
