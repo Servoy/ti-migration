@@ -121,6 +121,27 @@ name:"progressbar",
 typeName:"bootstrapextracomponents-progressbar",
 typeid:47,
 uuid:"B81FAED1-64E7-41B8-9BDC-32DC22376763"
+},
+{
+cssPosition:"59,0,-1,100,0,30",
+json:{
+cssPosition:{
+bottom:"-1",
+height:"30",
+left:"100",
+right:"0",
+top:"59",
+width:"0"
+},
+format:"( #### )",
+styleClass:"default-align h5 text-tertiary",
+toolTipText:"Inherited"
+},
+name:"countTotalExtended",
+styleClass:"default-align h5 text-tertiary",
+typeName:"bootstrapcomponents-datalabel",
+typeid:47,
+uuid:"D4ACC425-8351-4F4B-970F-94640D2F283E"
 }
 ],
 name:"svyTiCountTile",

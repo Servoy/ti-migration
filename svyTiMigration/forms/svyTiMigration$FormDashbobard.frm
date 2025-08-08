@@ -23,6 +23,9 @@ dataProviderID:"progressTotal"
 countTotal:{
 visible:false
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressTotal",
 type:"success"
@@ -69,6 +72,9 @@ dataProviderID:"countOnRenderMigrated"
 },
 countTotal:{
 dataProviderID:"countOnRender"
+},
+countTotalExtended:{
+
 },
 progressbar:{
 dataProviderID:"progressOnRender"
@@ -129,6 +135,9 @@ dataProviderID:"countListsMigrated"
 countTotal:{
 dataProviderID:"countLists"
 },
+countTotalExtended:{
+dataProviderID:"countListsExtended"
+},
 progressbar:{
 dataProviderID:"progressLists"
 },
@@ -170,6 +179,9 @@ dataProviderID:"countGridsMigrated"
 },
 countTotal:{
 dataProviderID:"countGrids"
+},
+countTotalExtended:{
+dataProviderID:"countGridsExtended"
 },
 progressbar:{
 dataProviderID:"progressGrids"
@@ -217,6 +229,9 @@ dataProviderID:"countBeansMigrated"
 },
 countTotal:{
 dataProviderID:"countBeans"
+},
+countTotalExtended:{
+
 },
 progressbar:{
 dataProviderID:"progressBeans"

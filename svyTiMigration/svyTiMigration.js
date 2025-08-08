@@ -16,13 +16,11 @@ var TEMPLATE_ON_CELL_CLICK = '/**\n\
  * @private\n\
  */\n\
 function onCellClick(foundsetindex, columnindex, record, event) {\n\
-	if(columnindex < 0) {\n\
-		application.output("Cell click not handled in group mode", LOGGINGLEVEL.WARNING);\
-		return;\n\
-	}\n\
-	\n\
 	/** @type {CustomType<aggrid-groupingtable.column>} */\n\
 	var col = elements[event.getElementName()].getColumn(columnindex);\n\
+	\n\
+	\n\
+	if(!scopes.svyNgGridUtils.gridEventsChecks(record, col, foundset, columnindex)) return;\n\
 	\n\
 [BODY]\n\
 }';
@@ -45,13 +43,11 @@ var TEMPLATE_ON_CELL_RIGHT_CLICK = '/**\n\
  * @private\n\
  */\n\
 function onCellRightClick(foundsetindex, columnindex, record, event) {\n\
-	if(columnindex < 0) {\n\
-		application.output("Cell right click not handled in group mode", LOGGINGLEVEL.WARNING);\
-		return;\n\
-	}\n\
-	\n\
 	/** @type {CustomType<aggrid-groupingtable.column>} */\n\
 	var col = elements[event.getElementName()].getColumn(columnindex);\n\
+	\n\
+	if(!scopes.svyNgGridUtils.gridEventsChecks(record, col, foundset, columnindex)) return;\n\
+	\n\
 	\n\
 [BODY]\n\
 }';
@@ -74,13 +70,11 @@ var TEMPLATE_ON_CELL_DOUBLE_CLICK = '/**\n\
  * @private\n\
  */\n\
 function onCellDoubleClick(foundsetindex, columnindex, record, event) {\n\
-	if(columnindex < 0) {\n\
-		application.output("Cell right click not handled in group mode", LOGGINGLEVEL.WARNING);\
-		return;\n\
-	}\n\
-	\n\
 	/** @type {CustomType<aggrid-groupingtable.column>} */\n\
 	var col = elements[event.getElementName()].getColumn(columnindex);\n\
+	\n\
+	if(!scopes.svyNgGridUtils.gridEventsChecks(record, col, foundset, columnindex)) return;\n\
+	\n\
 	\n\
 [BODY]\n\
 }';
@@ -120,6 +114,7 @@ function onColumnDataChange(foundsetindex, columnindex, oldValue, newValue, even
  * @param {String} formName
  * @param {Boolean} [includeListView]
  * @param {Boolean} [skipOpen]
+ * @param {Boolean} [isSearchable]
  * @param {function(String, JSWebComponent)} [gridCallback] This callback can be used to modify the resulting grid
  * @param {function(String, JSField|JSLabel|JSButton, CustomType<aggrid-groupingtable.column>)} [columnCallback] This callback can be used to modify the resulting grid column of each component
  *
@@ -127,7 +122,7 @@ function onColumnDataChange(foundsetindex, columnindex, oldValue, newValue, even
  *
  * @properties={typeid:24,uuid:"D174958C-9D02-4FE4-829C-B8B18CA56743"}
  */
-function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallback, columnCallback) {
+function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallback, columnCallback, isSearchable) {
 	var jsOldForm = solutionModel.getForm(formName + '_OLD');
 	var jsForm = solutionModel.getForm(formName);
 
@@ -157,6 +152,9 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 	}
 
 	application.output('Converting form "' + formName + '" to NG Grid', LOGGINGLEVEL.INFO);
+	
+	// remove the convert button
+	jsForm.removeWebComponent('svyBtnGridConverter');
 
 	var bodyPart = jsForm.getBodyPart();
 	var bodyOffset = bodyPart.getPartYOffset();
@@ -274,7 +272,7 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 		
 		var headerLabel = labelForElements[component.name];
 		if (!headerLabel) headerLabel = labelForElements[component.dataProviderID];
-		var column = convertComponentToGridColumn(jsForm, component, headerLabel, columnCallback);
+		var column = convertComponentToGridColumn(jsForm, component, headerLabel, columnCallback,isSearchable);
 
 		// Set a dummy name, if don't have, just to be able to delete them
 		setComponentDummyName(component);
@@ -333,7 +331,9 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 		});
 	}
 
-	grid.setJSONProperty("rowHeight", maxComponentHeight);
+	if (maxComponentHeight > 52 ) {
+		grid.setJSONProperty("rowHeight", maxComponentHeight);
+	}
 	grid.setJSONProperty("columns", columns);
 
 	if (onCellClickBody.length) {
@@ -360,14 +360,14 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
 
 	var customStyleClass = getCustomGridStyleClass(grid);
 	if (customStyleClass) {
-		grid.setJSONProperty('styleClass', grid.getJSONProperty('styleClass') + ' ' + customStyleClass);
+		grid.setJSONProperty('styleClass', customStyleClass);
 	}
 	
 	if (gridCallback instanceof Function) {
 		gridCallback(formName, grid);
 	}
 
-	servoyDeveloper.save(true);
+	servoyDeveloper.save(jsForm, true);
 
 	application.output('Finished converting form to NG Grid');
 	application.sleep(1000);
@@ -384,12 +384,13 @@ function convertTableFormToGrid(formName, includeListView, skipOpen, gridCallbac
  * @param {JSField|JSLabel|JSButton} component
  * @param {JSLabel} [jsHeader]
  * @param {function(String, JSField|JSLabel|JSButton, CustomType<aggrid-groupingtable.column>)} [callback] Function used to customize the column after the component is converted
+ * @param {Boolean} [isSearchable]
  * @return {CustomType<aggrid-groupingtable.column>}
  * @private
  *
  * @properties={typeid:24,uuid:"9F4B7BB0-B8C2-4CB5-838B-1EF46699DB03"}
  */
-function convertComponentToGridColumn(form, component, jsHeader, callback) {
+function convertComponentToGridColumn(form, component, jsHeader, callback, isSearchable) {
 	var componentProps = utils.stringFormat('component: %s (x: %.0f, y: %.0f, width: %.0f, height: %.0f)',
 		[component.name || '-no name-', component.x, component.y, component.width, component.height]);
 
@@ -447,11 +448,22 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 			column.autoResize = false;
 		}
 	
-		if (component instanceof JSField && component.editable) {
+		if (component instanceof JSField && (component.editable || isSearchable == true)) {
 			switch (component.displayType) {
 			case JSField.TEXT_FIELD:
 			case JSField.TEXT_AREA:
 				column.editType = "TEXTFIELD";
+				
+				// make it a DATEPICKER if the dataprovider is of of type Date
+				if (column.dataprovider && scopes.svyDataUtils) {
+					var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(form.dataSource, column.dataprovider);
+					if (jsColumn && jsColumn.getType() == JSColumn.DATETIME) {
+						column.editType = "DATEPICKER";
+					} else {
+						// TODO what if is a a form variable.. 
+					}
+				}
+				
 				break;
 	
 			case JSField.TYPE_AHEAD:
@@ -482,27 +494,36 @@ function convertComponentToGridColumn(form, component, jsHeader, callback) {
 			default:
 				break;
 			}
-		} if (component && component.displayType == JSField.CHECKS && !component.editable) {
 			
+			// check the DP type if should be a calendar !?
+			
+			// if the field is searchable but not editable, it needs to have the isEditableDataprovider
+			if (isSearchable && !component.editable) {
+				// if is searchable but not editable ( or not enabled ? )
+				if (!form.getVariable('isEditableDataprovider')) {
+					form.newVariable('isEditableDataprovider', JSVariable.MEDIA, "false");
+				}
+				column.isEditableDataprovider = 'isEditableDataprovider';
+			}
+			
+		} 
+		if (component && component.displayType == JSField.CHECKS && !component.editable && !isSearchable) {
 			// if field is a non-editable checkbox. Show it as checkbox but make sure is not editable by setting the isEditableDataprovider
-			column.editType = "CHECKBOX";
-			
+        	column.editType = "CHECKBOX";
 			if (!form.getVariable('isEditableDataprovider')) {
 				form.newVariable('isEditableDataprovider', JSVariable.MEDIA, "false");
 			}
-			
 			column.isEditableDataprovider = 'isEditableDataprovider';
-			
 		} else if (component instanceof JSLabel && !column.dataprovider) {
 			/** @type {JSLabel} */
 			var label = component;
-	
+
 			// Use label tag text as dataprovider if showing a single column/calculation/aggregation
 			if (/^%%[a-zA-Z\._]+%%$/.test(label.text)) {
 				column.dataprovider = utils.stringReplace(label.text, '%%', '');
 			}
 		}
-	
+
 		var customStyleClass = getCustomColumnStyleClass(component);
 		if (customStyleClass) {
 			column.styleClass += ' ' + customStyleClass;
@@ -638,7 +659,7 @@ function getCustomColumnStyleClass(component) {
  * @properties={typeid:24,uuid:"493CB7D3-BA98-4E1D-9514-CEF420DABA3A"}
  */
 function getCustomGridStyleClass(grid) {
-	return '';
+	return 'ag-theme-servoy';
 }
 
 /**
@@ -684,8 +705,9 @@ function getMethodFullyQualifiedName(method) {
 }
 
 /**
+ * @protected 
+ * @deprecated 
  * @return {Array<String>}
- * @private
  *
  * @properties={typeid:24,uuid:"67496C2E-2389-4809-8639-28B8B842C6B7"}
  */
@@ -729,7 +751,7 @@ function getAllTableForms() {
 function getDataSetForTableFormsValueList(displayValue, realValue, record, valueListName, findMode, rawDisplayValue) {
 	/** @type  {JSDataSet} */
 	var result = databaseManager.createEmptyDataSet(0, 0);
-	var tableForms = getAllTableForms();
+	var tableForms = scopes.svyTiAnalyzer.getAllRepeatForms();
 
 	if (displayValue != null) {
 		tableForms = tableForms.filter(/** @param {String} f */
@@ -746,6 +768,28 @@ function getDataSetForTableFormsValueList(displayValue, realValue, record, value
 	}
 
 	return result;
+}
+
+/**
+ * @deprecated 
+ * 
+ * @param {JSForm} jsForm
+ * @return {Array<JSComponent>} An array of components that are in the body part of the form
+ *
+ * @properties={typeid:24,uuid:"F5063874-BFB2-47AE-A40F-5007DEE38789"}
+ */
+function getFormBodyComponents(jsForm) {
+	var bodyPart = jsForm.getBodyPart();
+	var bodyOffset = bodyPart.getPartYOffset();
+	var footerPart = jsForm.getFooterPart();
+	var footerOffSet = footerPart ? footerPart.getPartYOffset() : bodyPart.height;
+
+	var components = jsForm.getComponents().filter(/** @param {JSComponent} component */
+		function(component) {
+			return (component.y >= bodyOffset && component.y < footerOffSet);
+	});
+
+	return components;
 }
 
 /**

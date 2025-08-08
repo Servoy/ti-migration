@@ -110,7 +110,7 @@ function showFormsCount() {
 	var formsCount = databaseManager.getFoundSetCount(elements.formsGrid.myFoundset.foundset);
 	
 	// TODO yes i know we can do it better.. lets be quick :) 
-	forms.svyTiMigration$FormDashbobard.countGrids = formsCount;
+	//forms.svyTiMigration$FormDashbobard.countGrids = formsCount;
 	forms.svyTiMigration$FormDashbobard.countGridsMigrated = convertedCount;
 	
 	var qOnRender = datasources.mem.migrationFormOnRender.createSelect();

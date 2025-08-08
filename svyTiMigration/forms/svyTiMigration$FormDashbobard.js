@@ -31,6 +31,13 @@ var countGridsMigrated = 0;
 /**
  * @type {Number}
  *
+ * @properties={typeid:35,uuid:"F39E1F86-8172-496F-9F41-B1A583BD9FF3",variableType:4}
+ */
+var countGridsExtended = 0;
+
+/**
+ * @type {Number}
+ *
  * @properties={typeid:35,uuid:"1FC6B91A-CBF1-4002-A2B9-86E8E36072B8",variableType:4}
  */
 var countLists = 0;
@@ -41,6 +48,14 @@ var countLists = 0;
  * @properties={typeid:35,uuid:"17ED4F9D-2AFB-430A-9C99-5722D382172B",variableType:4}
  */
 var countListsMigrated = 0;
+
+
+/**
+ * @type {Number}
+ *
+ * @properties={typeid:35,uuid:"D1D38F63-CCDB-4DD7-B32D-75DFD95DCDE9",variableType:4}
+ */
+var countListsExtended = 0;
 
 /**
  * @type {Number}
@@ -134,6 +149,8 @@ function onShow(firstShow, event) {
 	countBeans = scopes.svyTiAnalyzer.getAllBeans().length;
 	countGrids = scopes.svyTiAnalyzer.getAllTableForms().length;
 	countLists = scopes.svyTiAnalyzer.getAllListsForms().length;
+	countGridsExtended = scopes.svyTiAnalyzer.getAllTableInheritedForms().length;
+	countListsExtended = scopes.svyTiAnalyzer.getAllListInheritedForms().length;
 
 	updateProgress();
 }
