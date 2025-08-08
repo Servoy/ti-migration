@@ -157,11 +157,12 @@ function buildFormStatsFile() {
  * @properties={typeid:24,uuid:"E2B173FA-9E6C-4529-929C-29A36074E6C9"}
  */
 function buildFormStatsMemTable() {
-	var dsForms = databaseManager.createEmptyDataSet(0, ['form_name', 'form_type', 'body_components_count', 'conversion_date', 'complexity_lvl']);
+	var dsForms = databaseManager.createEmptyDataSet(0, ['form_name', 'form_type', 'body_components_count', 'conversion_date', 'complexity_lvl', 'is_inherited']);
 	var dsOnRender = databaseManager.createEmptyDataSet(0, ['form_name', 'function_name', 'function_code', 'function_ai_analysis']);
 	var statsFile = plugins.file.convertToJSFile(plugins.file.getDefaultUploadLocation() + '/formStats.json');
 	var fileContent = statsFile.exists() ? plugins.file.readTXTFile(statsFile) : '';
-
+	var extendedForms = scopes.svyTiAnalyzer.getAllTableInheritedForms().concat(scopes.svyTiAnalyzer.getAllListInheritedForms())
+	
 	formStatObj = {};
 	if (fileContent) {
 		try {
@@ -169,14 +170,14 @@ function buildFormStatsMemTable() {
 			
 			for (var formName in formStatObj) {
 				var conversionDate = formStatObj[formName].conversionDate ? new Date(formStatObj[formName].conversionDate) : null;
-				var complexity = getFormMigrationComplexity(formStatObj[formName].componentsCount);
-				
-				dsForms.addRow([formName, formStatObj[formName].formType, formStatObj[formName].componentsCount, conversionDate, complexity]);
-				
+				var isInherited = extendedForms.includes(formName)
+				var complexity = getFormMigrationComplexity(formStatObj[formName].componentsCount, isInherited);
+
+				dsForms.addRow([formName, formStatObj[formName].formType, formStatObj[formName].componentsCount, conversionDate, complexity, isInherited]);
+
 				if (formStatObj[formName].renderInfo) {
 					for (var functionName in formStatObj[formName].renderInfo) {
 						var renderInfo = formStatObj[formName].renderInfo[functionName];
-						
 						dsOnRender.addRow([formName, functionName, renderInfo.code, renderInfo.info]);
 					}
 				}
@@ -310,11 +311,17 @@ function getFormStatObj(form, conversionDate) {
 
 /**
  * @param {Number} componentsCount
+ * @param {Boolean} isInherited
  * @return {Number}
  *
  * @properties={typeid:24,uuid:"5035A88C-C678-4767-834B-399B66244A66"}
  */
-function getFormMigrationComplexity(componentsCount) {
+function getFormMigrationComplexity(componentsCount, isInherited) {
+	
+	if (isInherited) {
+		componentsCount = componentsCount * 3;
+	}
+	
 	if (componentsCount > 25) {
 		return FORM_COMPLEXITY_LEVELS.LEGENDARY;
 	}

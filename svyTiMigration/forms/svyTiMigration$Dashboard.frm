@@ -256,6 +256,14 @@ svyUUID:"9C0B2F03-5363-4A81-A6B0-F54FA38D7136",
 width:170
 },
 {
+dataprovider:"is_inherited",
+editType:"CHECKBOX",
+headerTitle:"Inherited",
+maxWidth:100,
+svyUUID:"234DDDB5-1597-454F-A47A-30D9A03BF11B",
+width:100
+},
+{
 autoResize:false,
 dataprovider:"onRenderCount",
 headerTitle:"# On Render",
