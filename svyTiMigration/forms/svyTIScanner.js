@@ -70,3 +70,17 @@ function createRemoteFile(file) {
 function onShow(firstShow, event) {
 	elements.powergrid_1.renderData(scopes.svyTIScanData.getScanDataSet())
 }
+
+/**
+ * Fired when the button is clicked.
+ *
+ * @param {JSEvent} event
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"F78914A8-BC3A-45C6-8C5A-9A1754A0D37A"}
+ */
+function onActionExport(event) {
+	// TODO Auto-generated method stub
+	elements.powergrid_1.exportData()
+}

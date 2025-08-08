@@ -60,6 +60,27 @@ typeid:47,
 uuid:"1EAAFEA4-D7E3-426E-938B-C0F2053EFC03"
 },
 {
+cssPosition:"-1,10,12,-1,30,30",
+json:{
+cssPosition:{
+bottom:"12",
+height:"30",
+left:"-1",
+right:"10",
+top:"-1",
+width:"30"
+},
+imageStyleClass:"fa fa-download",
+onActionMethodID:"F78914A8-BC3A-45C6-8C5A-9A1754A0D37A",
+styleClass:"btn btn-primary btn-round"
+},
+name:"btnExport",
+styleClass:"btn btn-primary btn-round",
+typeName:"bootstrapcomponents-button",
+typeid:47,
+uuid:"7528EE2C-5E17-4D4D-9CB0-3B226B4D4950"
+},
+{
 cssPosition:"88,8,5,11,353,307",
 json:{
 columns:[

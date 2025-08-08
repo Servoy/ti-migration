@@ -15,6 +15,9 @@ dataProviderID:"countOnRenderMigrated"
 countTotal:{
 dataProviderID:"countOnRender"
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressOnRender"
 },
@@ -64,6 +67,9 @@ dataProviderID:"progressTotal"
 countTotal:{
 visible:false
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressTotal",
 type:"success"
@@ -111,6 +117,9 @@ dataProviderID:"countGridsMigrated"
 countTotal:{
 dataProviderID:"countGrids"
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressGrids"
 },
@@ -122,7 +131,6 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
-onActionMethodID:"EE4A1F5A-59A4-44AC-BFD0-8C0138B60F0A",
 text:"Scan Grids"
 }
 },
@@ -153,6 +161,9 @@ dataProviderID:"countBeansMigrated"
 countTotal:{
 dataProviderID:"countBeans"
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressBeans"
 },
@@ -164,7 +175,6 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
-onActionMethodID:"D9F70FBC-4790-4557-87B3-1ACE9E59076E",
 text:"Beans"
 }
 },
@@ -213,6 +223,9 @@ dataProviderID:"countListsMigrated"
 countTotal:{
 dataProviderID:"countLists"
 },
+countTotalExtended:{
+
+},
 progressbar:{
 dataProviderID:"progressLists"
 },
@@ -224,7 +237,6 @@ slash:{
 },
 svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
 title:{
-onActionMethodID:"C751670C-B8AF-4363-A64D-96B3E1F188CD",
 text:"Lists"
 }
 },

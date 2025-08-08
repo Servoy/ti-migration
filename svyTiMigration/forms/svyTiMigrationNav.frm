@@ -93,6 +93,7 @@ svyUUID:"243C63F2-30CE-4251-9A7F-9AFB783415BD"
 },
 {
 formName:"CBB2C09B-FF47-4777-922D-3140EACAFC32",
+iconStyleClass:"fa-solid fa-puzzle-piece",
 id:"modules",
 svyUUID:"5CBFA61B-F4DF-4BBD-92A9-1FC3D3ED9161",
 text:"Modules"
@@ -145,7 +146,7 @@ offText:"All",
 onDataChangeMethodID:"01E34DB1-18E2-446A-AAEB-CB8C962032C0",
 onText:"Active"
 },
-name:"switch_4",
+name:"switchActiveModules",
 typeName:"bootstrapextracomponents-switch",
 typeid:47,
 uuid:"DC131EFF-FC1D-4622-9BDF-ACC9A9250225"

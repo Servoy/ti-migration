@@ -1,4 +1,38 @@
 /**
+ * @return {Number}
+ * @properties={typeid:24,uuid:"6C0ACB01-F16C-4D0D-8E96-618F46C8CB4C"}
+ */
+function getAllFormsWithUI() {
+	var count = 0;
+
+	solutionModel.getForms().forEach(/** @param {JSForm} f */
+	function(f) {
+		if (f.getComponents(true).length) {
+			count++
+		}
+	});
+
+	return count;
+}
+
+/**
+ * @return {Number}
+ * @properties={typeid:24,uuid:"EE5B8E9D-374B-43B8-9483-5E0DD6C09E9C"}
+ */
+function getAllAbstractForms() {
+	var count = 0;
+
+	solutionModel.getForms().forEach(/** @param {JSForm} f */
+	function(f) {
+		if (f.getComponents(true).length == 0) {
+			count++
+		}
+	});
+
+	return count;
+}
+
+/**
  * @public
  * @return {Array<String>}
  *
@@ -117,7 +151,6 @@ function getAllListInheritedForms() {
 	return tableForms;
 }
 
-
 /**
  * @public
  * @return {Array<String>}
@@ -140,7 +173,8 @@ function getAllRepeatForms() {
 
 /**
  * @public
- * @return Array<{name:String, formName:String, className:String}>
+ * @return {Array<{name:String, formName:String, className:String}>}
+ *
  * @properties={typeid:24,uuid:"1D65BAB5-CB35-4B78-A69E-D26BE9EB699B"}
  */
 function getAllBeans() {
@@ -174,3 +208,91 @@ function getAllBeans() {
 	return all_beans;
 }
 
+/**
+ * @public
+ * @return {Array<{name:String, formName:String, dataprovider:String}>}
+ *
+ * @properties={typeid:24,uuid:"53B66C19-6C62-4D96-9DBC-D7C27D633D65"}
+ */
+function getAllRTFArea() {
+
+	/** @type {Array<{name:String, formName:String, dataprovider:String}>} */
+	var all_beans = [];
+
+	solutionModel.getForms().forEach(/** @param {JSForm} f */
+	function(f) {
+		var fieldRTFs = f.getFields(false);
+
+		//application.output('formBeans '+ formBeans);
+		if (fieldRTFs && fieldRTFs[0] !== null) {
+			//all_beans.beansNumber = all_beans.beansNumber + formBeans.length;
+			for (var i = 0; i < fieldRTFs.length; i++) {
+				var fieldRTF = fieldRTFs[i];
+				if (fieldRTF.displayType == JSField.RTF_AREA) {
+					var rtf = {
+						name: fieldRTF.name,
+						dataprovider: fieldRTF.dataProviderID,
+						formName: fieldRTF.getFormName()
+					}
+					all_beans.push(rtf);
+				}
+			}
+		}
+
+	});
+
+	return all_beans;
+}
+
+/**
+ * @return {Array<{dataprovider:String, dataSource:String}>}
+ * @properties={typeid:24,uuid:"ADCE1B41-3106-49C3-8E23-E74A6B0F13FD"}
+ */
+function getRTFDataProviders() {
+
+	var result = [];
+
+	var matches = [];
+
+	var rtfFields = getAllRTFArea();
+	for (var i = 0; i < rtfFields.length; i++) {
+		var rtfField = rtfFields[i];
+		var dp = rtfField.dataprovider;
+		if (!dp) continue;
+
+		var dataSource;
+		var dpPath = dp.split('.');
+		var colName = dp;
+
+		if (dpPath[0] == 'scopes' && dpPath[0] == 'globals') {
+			dataSource = 'GLOBAL';
+		} else if (dpPath.length > 1) {
+			colName = dpPath.pop();
+			var relationName = dpPath.pop();
+
+			if (solutionModel.getRelation(relationName)) {
+				dataSource = solutionModel.getRelation(relationName).foreignDataSource;
+			} else {
+				dataSource = forms[rtfField.formName]
+			}
+		} else {
+			dataSource = forms[rtfField.formName]
+		}
+
+		if (!dataSource) {
+			dataSource = 'FORM_VARIABLE'
+		}
+
+		var match = dataSource + '.' + colName
+
+		if (!matches.includes(match)) {
+			matches.push(match)
+			result.push({
+				dataprovider: colName,
+				dataSource: dataSource
+			})
+		}
+
+	}
+	return result;
+}
