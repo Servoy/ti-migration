@@ -1,0 +1,11 @@
+customProperties:"lazyLoading:false",
+dataProviderID1:"scope",
+dataSource:"mem:svymig_scan",
+displayValueType:12,
+name:"svyTiScanScopes",
+realValueType:12,
+returnDataProviders:1,
+showDataProviders:1,
+typeid:34,
+uuid:"B1DD053C-1645-4457-A7ED-B37CF8FE1952",
+valueListType:1

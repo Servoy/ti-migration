@@ -290,7 +290,7 @@ function scan(dir) {
 	dictionary = dictionary.concat(['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc']); //high complexity
 
 	//Plugins and working with files
-	dictionary = dictionary.concat(['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write', 'Plugins.file.createFolder']); //high complexity
+	dictionary = dictionary.concat(['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write','Plugins.file.writeTXTFile','Plugins.file.read','Plugins.file.readTXTFile', 'Plugins.file.createFolder']); //high complexity
 
 	//OnRender Events
 	dictionary_frm_events = ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'] //low complexity

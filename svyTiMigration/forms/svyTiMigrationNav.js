@@ -59,6 +59,9 @@ function onActionScan(event, dataTarget) {
  * @properties={typeid:24,uuid:"01E34DB1-18E2-446A-AAEB-CB8C962032C0"}
  */
 function onDataChangeActiveModules(oldValue, newValue, event) {
-	// TODO fire an event to refresh
+	var form = forms[elements.sidenav_2.containedForm]
+	if (form && form.refreshData) {
+		form.refreshData();
+	}
 	return true
 }

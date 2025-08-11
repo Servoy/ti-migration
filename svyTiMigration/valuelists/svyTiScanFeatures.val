@@ -1,0 +1,11 @@
+customProperties:"lazyLoading:false",
+dataProviderID1:"feature",
+dataSource:"mem:svymig_scan",
+displayValueType:12,
+name:"svyTiScanFeatures",
+realValueType:12,
+returnDataProviders:1,
+showDataProviders:1,
+typeid:34,
+uuid:"6DAD9672-C49A-4BED-A740-3F00F11131BD",
+valueListType:1

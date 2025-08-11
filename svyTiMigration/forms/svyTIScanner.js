@@ -68,7 +68,7 @@ function createRemoteFile(file) {
  * @properties={typeid:24,uuid:"22BC93A5-EE5B-471A-BFC3-9F0E26F9BEDC"}
  */
 function onShow(firstShow, event) {
-	elements.powergrid_1.renderData(scopes.svyTIScanData.getScanDataSet())
+	refreshData()
 }
 
 /**
@@ -83,4 +83,11 @@ function onShow(firstShow, event) {
 function onActionExport(event) {
 	// TODO Auto-generated method stub
 	elements.powergrid_1.exportData()
+}
+
+/**
+ * @properties={typeid:24,uuid:"15356E8D-9467-4F2F-A6AC-C26A1F11590C"}
+ */
+function refreshData() {
+	elements.powergrid_1.renderData(scopes.svyTIScanData.getScanDataSet())
 }
