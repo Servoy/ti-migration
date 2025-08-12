@@ -60,16 +60,18 @@ typeid:47,
 uuid:"1EAAFEA4-D7E3-426E-938B-C0F2053EFC03"
 },
 {
-cssPosition:"-1,10,12,-1,30,30",
+cssPosition:"-1,10,12,-1,40,40",
+formIndex:1,
 json:{
 cssPosition:{
 bottom:"12",
-height:"30",
+height:"40",
 left:"-1",
 right:"10",
 top:"-1",
-width:"30"
+width:"40"
 },
+formIndex:1,
 imageStyleClass:"fa fa-download",
 onActionMethodID:"F78914A8-BC3A-45C6-8C5A-9A1754A0D37A",
 styleClass:"btn btn-primary btn-round"
@@ -163,7 +165,8 @@ left:"11",
 right:"8",
 top:"88",
 width:"353"
-}
+},
+formIndex:0
 },
 name:"powergrid_1",
 typeName:"aggrid-datasettable",
