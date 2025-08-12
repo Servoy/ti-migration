@@ -294,7 +294,7 @@ function scan(dir) {
 	
 	if (!dir) dir = getWorkspacePath();
 
-	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype', 'featuretype']);
+	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype', 'featuretype', 'feature_count']);
 
 	var totalsObj = { num_of_tables_or_lists: 0, num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
@@ -509,7 +509,7 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
+						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName), servoySolutionsObj[i].scopes[f].js_flags[g]])
 					}
 					for (var h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -545,7 +545,7 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
+						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName), servoySolutionsObj[i].forms[f].js_flags[g]])
 					}
 					for (h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -579,7 +579,7 @@ function scan(dir) {
 
 							featureName = g;
 							weight = _cc;
-							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
+							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName), servoySolutionsObj[i].forms[f].frm_flags[g]])
 						}
 					}
 

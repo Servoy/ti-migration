@@ -41,6 +41,12 @@ creationOrderIndex:5,
 dataType:12,
 length:100,
 name:"featuretype"
+},
+{
+allowNull:true,
+creationOrderIndex:6,
+dataType:4,
+name:"feature_count"
 }
 ],
 name:"svymig_scan",

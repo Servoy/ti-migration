@@ -64,6 +64,8 @@ function getScanDataSet() {
 	q.result.add(q.columns.feature, 'feature')
 	q.result.add(q.columns.complexity, 'complexity')
 	q.result.add(q.columns.featuretype, 'featuretype')
+	q.result.add(q.columns.feature_count, 'featuretype')
+
 
 	var ds = q.getDataSet(-1)
 	ds.setColumnName(1, 'solution')
@@ -72,6 +74,7 @@ function getScanDataSet() {
 	ds.setColumnName(4, 'feature')
 	ds.setColumnName(5, 'complexity')
 	ds.setColumnName(6, 'featuretype')
+	ds.setColumnName(7, 'feature_count')
 
 	return ds
 }

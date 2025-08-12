@@ -128,6 +128,13 @@ svyUUID:"AE03DA7C-7B84-4ADF-B5D2-89FB6DC171E4",
 valuelist:"17F9586E-83C2-45D7-8316-00A98D424588"
 },
 {
+aggFunc:"sum",
+dataprovider:"feature_count",
+headerTitle:"#Count",
+id:"feature_count",
+svyUUID:"25F55948-8049-4DB9-9872-D8A21ADA8AD3"
+},
+{
 columnDef:{
 floatingFilter:"true"
 },
