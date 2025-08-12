@@ -141,6 +141,7 @@ var FEATURE_CATEGORIES = {
 	'solutionModel'],
 	INLINE_HTML: ['<html>', '<style>', 'javascript:'],
 	FORM_EVENT: ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'],
+	RTF: ['RTF Area'],
 	GRID: ['Table View', 'List View']
 }
 
@@ -299,6 +300,7 @@ function getStructure(dir) {
 								var num_of_table_columns = getFormJSON(fobj[ (f[j].getName()).split('.frm')[0]].frm).body.frm_elements.length																
 								tbl_cols = num_of_table_columns;
 							}
+							if (ctn == 'displayType:7') ctn = 'RTF Area'
 
 							if (!fobj[ (f[j].getName()).split('.frm')[0]].frm_flags) fobj[f[j].getName().split('.frm')[0]].frm_flags = { }
 							fobj[ (f[j].getName()).split('.frm')[0]].frm_flags[ctn] = ct;
@@ -417,7 +419,7 @@ function scan(dir) {
 	dictionary_frm_events = dictionary_frm_events.concat(dictionary_beans)
 
 	//add views
-	dictionary_frm_events = dictionary_frm_events.concat(['view:1', 'view:3', 'view:4']) //table view, list view, list view (locked) low complexity
+	dictionary_frm_events = dictionary_frm_events.concat(['view:1', 'view:3', 'view:4', 'displayType:7']) //table view, list view, list view (locked) low complexity
 
 	//Inline html
 	dictionary = dictionary.concat(FEATURE_CATEGORIES.INLINE_HTML); //medium complexity
