@@ -38,6 +38,30 @@ var servoySolutionsObj = { };
 var dictionary_complexity = { }
 
 /**
+ * @private
+ * @properties={typeid:35,uuid:"C5ED9D93-FF51-47AA-8180-85E335C5C491",variableType:-4}
+ */
+var cachedFeats = {};
+
+/**
+ * @public 
+ * @properties={typeid:35,uuid:"74C3BAA2-8C04-43DA-B39B-C5086843F81B",variableType:-4}
+ */
+var FEATURE_CATEGORIES = {
+	DEPRECATED_FUNC : ['Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle'],
+	PRINT: ['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable'],
+	FILE: ['Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write','Plugins.file.writeTXTFile','Plugins.file.read','Plugins.file.readTXTFile', 'Plugins.file.createFolder', 'Plugins.file'],
+	PLUGIN: ['Plugins.busy', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager'],
+	BEANS: ['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea'],
+	JAVA: ['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc'],
+	SOLUTION_MODEL: ['solutionModel.cloneForm', 'solutionModel.newForm', 'JSForm.LOCKED_TABLE_VIEW', 'JSForm.LOCKED_LIST_VIEW', 'JSForm.LIST_VIEW', 'solutionModel'],
+	INLINE_HTML: ['<html>', '<style>', 'javascript:'],
+	FORM_EVENT: ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'],
+	FORM_VIEW: ['TABLE_VIEW', 'LIST_VIEW']
+}
+
+
+/**
  * @public
  * @return {String}
  *
@@ -270,7 +294,7 @@ function scan(dir) {
 	
 	if (!dir) dir = getWorkspacePath();
 
-	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype']);
+	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype', 'featuretype']);
 
 	var totalsObj = { num_of_tables_or_lists: 0, num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
 	var retMsg = '';
@@ -281,33 +305,38 @@ function scan(dir) {
 	dictionary = [];
 
 	//Deprecated Functionalities
-	dictionary = dictionary.concat(['Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle']); //blockers
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.DEPRECATED_FUNC)
+	//(['Application.executeProgram', 'Application.beep', 'Application.setStatusText', 'Application.getClipboardString', 'Application.setClipboardContent', 'i18n.setTimeZone', 'application.setToolbarVisible', 'Plugins.window.getMenuBar', 'APPLICATION_TYPES.WEB_CLIENT', 'APPLICATION_TYPES.SMART_CLIENT', 'application.overrideStyle']); //blockers
 
 	//Print and Reports
-	dictionary = dictionary.concat(['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable']); //blocker
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.PRINT)
+		//['Controller.print', 'Controller.showPrintPreview', 'StartMetaPrintJob', 'EndMetaPrintJob', 'GetPDFPrinter', 'GetPrinters', 'IsLastPrintPreviewPrinted', 'Controller.setPageFormat', 'Controller.setPreferredPrinter', 'DefaultPageFormat', 'Printable']); //blocker
 
 	//Java Functions
-	dictionary = dictionary.concat(['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc']); //high complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.JAVA)
+		//['Packages.java.io.FileOutputStream', 'Packages.java.io.FileInputStream', 'Packages.java.io.File', 'Packages.java.awt.Frame.getFrames', 'Packages.java.awt.Desktop', 'java.awt.Component', 'java.awt.event.KeyListener', 'java.awt.event.MouseListener', 'java.awt.GraphicsEnvironment', 'java.lang.Runtime.getRuntime', 'java.lang.System.gc']); //high complexity
 
 	//Plugins and working with files
-	dictionary = dictionary.concat(['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write','Plugins.file.writeTXTFile','Plugins.file.read','Plugins.file.readTXTFile', 'Plugins.file.createFolder']); //high complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.PLUGIN)
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.FILE)
+		//['Plugins.busy', 'Plugins.file', 'Plugins.drmaison', 'Plugins.IntegracionEscaner', 'It2be_barcode', 'It2be_calendar', 'Plugins.jasperPluginRMI', 'KeyListeners', 'Popupmenu', 'Popupmenu_ext', 'SerialPort', 'Servoyguy_pdf_pro', 'UserManager', 'Plugins.file.showDirectorySelectDialog', 'Plugins.file.showFileOpenDialog', 'Plugins.file.showFileSaveDialog', 'Plugins.file.write','Plugins.file.writeTXTFile','Plugins.file.read','Plugins.file.readTXTFile', 'Plugins.file.createFolder']); //high complexity
 
 	//OnRender Events
-	dictionary_frm_events = ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'] //low complexity
+	dictionary_frm_events = FEATURE_CATEGORIES.FORM_EVENT //low complexity
 	dictionary = dictionary.concat(dictionary_frm_events);
 
 	//solution Model
-	dictionary = dictionary.concat(['solutionModel']); //high complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.SOLUTION_MODEL); //high complexity
 
 	//Beans
-	dictionary_beans = ['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea']; //high complexity
+	dictionary_beans = FEATURE_CATEGORIES.BEANS//['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea']; //high complexity
 	dictionary_frm_events = dictionary_frm_events.concat(dictionary_beans)
 
 	//add views
 	dictionary_frm_events = dictionary_frm_events.concat(['view:1', 'view:3', 'view:4']) //table view, list view, list view (locked) low complexity
 
 	//Inline html
-	dictionary = dictionary.concat(['<html>', '<style>']); //medium complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.INLINE_HTML); //medium complexity
 
 	function updateComplexity(v, marker_obj, tally_obj) {
 		var ct = marker_obj[v]
@@ -480,7 +509,7 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-						dataset.addRow([solutionName, scopeName, featureName, weight])
+						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
 					}
 					for (var h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -516,7 +545,7 @@ function scan(dir) {
 
 						featureName = g;
 						weight = _cc;
-						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
+						dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
 					}
 					for (h in ff_obj) {
 						retMsg += '<p><span style="color:teal">' + f + '.js</span> | '
@@ -550,7 +579,7 @@ function scan(dir) {
 
 							featureName = g;
 							weight = _cc;
-							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType])
+							dataset.addRow([solutionName, scopeName, featureName, weight, scopeType, getFeatureCategory(featureName)])
 						}
 					}
 
@@ -601,4 +630,27 @@ function scan(dir) {
 	dataset.createDataSource('svymig_scan');
 
 	return { html: retMsg, csv: csv_data };
+}
+
+/**
+ * @private
+ * @param {String} feature
+ * 
+ * @return {String}
+ *
+ * @properties={typeid:24,uuid:"A2D19A3C-4A87-4789-A00F-044B04A7A7D9"}
+ */
+function getFeatureCategory(feature) {
+	
+	if (cachedFeats[feature]) {
+		return cachedFeats[feature]
+	}
+	
+	for ( var key in FEATURE_CATEGORIES ) {
+		if (FEATURE_CATEGORIES[key].includes(feature)) {
+			cachedFeats[feature] = key;
+			return key;
+		}
+	}
+	return null;
 }
