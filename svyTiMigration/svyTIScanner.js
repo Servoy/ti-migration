@@ -98,17 +98,19 @@ var FEATURE_CATEGORIES = {
 	'UserManager',
 	'MailPro'],
 	BEANS: [
-	'JProgressBar', 
-	'IT2BeCalendar', 
+	'beanClassName:"javax.swing.JProgressBar"', 
+	'beanClassName:"com.it2be.servoy.bean.IT2BeCalendar"', 
 	'DatasetGrid', 
 	'InMemDataGrid', 
 	'DnDTreeView', 
 	'TreeView', 
 	'DBTreeView', 
 	'DBTreeTableView', 
-	'JXBrowser', 
+	'beanClassName:"com.servoy.extensions.beans.jfxpanel.JFXPanel"', 
 	'JTextField', 
-	'JTextArea'],
+	'JTextArea',
+	'beanClassName:"javax.swing.JSlider"'
+	],
 	JAVA: [
 	'Packages.org.mozilla.javascript.continuations', 
 	'Packages.javax.print.PrintServiceLookup', 
