@@ -1,0 +1,10 @@
+addEmptyValue:1,
+customValues:"Easy|1\r\
+Medium|2\r\
+Hard|3\r\
+Legendary|4",
+displayValueType:12,
+name:"svyTiPrintComplexityLvl",
+realValueType:4,
+typeid:34,
+uuid:"227F82D5-0C75-49F5-8D07-4F69B3A0D7AD"

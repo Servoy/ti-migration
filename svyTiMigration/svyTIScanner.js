@@ -61,6 +61,8 @@ var FEATURE_CATEGORIES = {
 	'APPLICATION_TYPES.SMART_CLIENT', 
 	'application.overrideStyle'],
 	PRINT: [
+	'.controller.print', 
+	'.controller.showPrintPreview', 
 	'Controller.print', 
 	'Controller.showPrintPreview', 
 	'StartMetaPrintJob', 

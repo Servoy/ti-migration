@@ -315,3 +315,140 @@ function getRTFDataProviders() {
 	}
 	return result;
 }
+
+/**
+ * @public 
+ * @param formName
+ * @param {Boolean} [includeInherited]
+ * 
+ * @return {Number}
+ *
+ * @properties={typeid:24,uuid:"4ABD1EEE-2F74-46CD-A1D1-AB7FA2D9F41B"}
+ */
+function getElementsCount(formName, includeInherited) {
+	var f = solutionModel.getForm(formName);
+	if (!f) return 0
+	var countInherited = includeInherited === false ? false : true;
+	return f.getComponents(countInherited).length
+}
+
+/**
+ * @public 
+ * @param {String} formName
+ * 
+ * @return {Boolean}
+ *
+ * @properties={typeid:24,uuid:"36C0DF07-3BFE-481D-9B34-2AF299E37A51"}
+ */
+function isFormExtended(formName) {
+	var f = solutionModel.getForm(formName);
+	if (!f) return null;
+	if (f.extendsForm) {
+		/** @type {JSForm} */
+		var sf = f.extendsForm;
+
+		// if there are elements in base form
+		if (sf.getComponents(true).length) {
+			return true
+		} else {
+			return false;
+		}
+	}
+	return false;
+}
+
+/**
+ * @public 
+ * @param formName
+ * @return {Array<String>}
+ *
+ * @properties={typeid:24,uuid:"337524E4-37DC-4D38-94A8-4DAB460B6AE5"}
+ */
+function getChildForms(formName) {
+	var result = [];
+	
+	var f = solutionModel.getForm(formName)
+	if (!f) return []
+	var childs = getJSFormInstances(f);
+	for (var i = 0; i < childs.length; i++) {
+		result.push(childs[i].name)
+	}
+	return result
+}
+
+/**
+ * @private 
+ * @param superForm
+ * @return {Array<JSForm>}
+ * 
+ * @properties={typeid:24,uuid:"6FF71F3F-7350-40F9-A1A3-3854C3724BD9"}
+ */
+function getJSFormInstances(superForm) {
+	superForm = getJSFormForReference(superForm);
+	
+	/** @type {Array<JSForm>} */
+	var retval = [];
+	var smForms = solutionModel.getForms(); //Getting this once and holding a reference to it is faster
+	var smForm, instances;
+	for (var i = 0; i < smForms.length; i++) {
+		smForm = smForms[i];
+		instances = [];
+		if (retval.indexOf(smForm) != -1) {
+			continue;
+		}
+		
+		while (smForm.extendsForm != null) {
+			instances.push(smForm);
+			
+			if (smForm.extendsForm == superForm || retval.indexOf(smForm.extendsForm) != -1) {
+				retval = retval.concat(instances);
+				break;
+			}
+			smForm = smForm.extendsForm;
+		}
+	}
+	
+	return retval;
+}
+
+/**
+ * Gets the JSForm for any type of form 'reference' (formName String, RuntimeForm or JSform (the latter for convenience)), regardless how the form was created
+ * Solves the scenario of not being able to get the JSForm representation of forms created using {@link #application#createNewForminstance(...)}
+ * This method should be deprecated and removed after https://support.servoy.com/browse/SVY-3642 gets implemented
+ * 
+ * @private 
+ * 
+ * @param {JSForm|RuntimeForm|String} form 
+ *
+ * @return {JSForm}
+ * 
+ * @properties={typeid:24,uuid:"9D964729-5E71-497D-B068-70D8600CB64C"}
+ */
+function getJSFormForReference(form) {
+	if (form instanceof JSForm) {
+		/** @type {JSForm} */
+		var jsForm = form;
+		return jsForm;
+	}
+	
+	/** @type {String} */
+	var formName;
+	if (form instanceof RuntimeForm) {
+		formName = form.controller.getName();
+	} else if (form instanceof String) {
+		formName = form;
+	}
+	var retval = solutionModel.getForm(formName);
+	if (retval !== null) { //really null, not undefined
+		return retval;
+	}
+
+	if (!(formName in forms)) { //It's not a loaded form, so the value of 'form' must be wrong
+		throw 'The value provided for the "form" parameter is not a valid Form identifier: ' + form;
+	}
+	//It must be a form created with application.createNewFormInstance
+	var list = new Packages.java.util.ArrayList();
+	list.add(Packages.com.servoy.j2db.FormController);
+	formName = list.get(0)['getMethod']('getForm').invoke(forms[form]).getName();
+	return solutionModel.getForm(formName);
+}

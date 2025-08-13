@@ -1,4 +1,14 @@
 /**
+ * @properties={typeid:35,uuid:"A14891DF-BE47-4DF3-BAF8-30CC25E9FD82",variableType:-4}
+ */
+var PRINT_COMPLEXITY_LEVELS = {
+	EASY		: 1,
+	MEDIUM		: 2,
+	HARD		: 3,
+	LEGENDARY	: 4
+};
+
+/**
  * @type {Number}
  *
  * @properties={typeid:35,uuid:"F7C7B717-6728-4A81-AEE5-09CD835E457B",variableType:4}
@@ -50,7 +60,6 @@ function getAllListsForms() {
 	return 0
 	return d.getValue(1, 1)
 }
-
 /**
  * @return {JSDataSet}
  * @properties={typeid:24,uuid:"8F685E7C-1472-453F-B90B-57680B1C2E38"}
@@ -58,14 +67,14 @@ function getAllListsForms() {
 function getScanDataSet() {
 	var q = createSelect()
 	q.result.clear();
+
 	q.result.add(q.columns.solution, 'solution')
 	q.result.add(q.columns.scope, 'scope')
 	q.result.add(q.columns.scopetype, 'scopetype')
 	q.result.add(q.columns.feature, 'feature')
 	q.result.add(q.columns.complexity, 'complexity')
 	q.result.add(q.columns.featuretype, 'featuretype')
-	q.result.add(q.columns.feature_count, 'featuretype')
-
+	q.result.add(q.columns.feature_count, 'feature_count')
 
 	var ds = q.getDataSet(-1)
 	ds.setColumnName(1, 'solution')
@@ -77,6 +86,114 @@ function getScanDataSet() {
 	ds.setColumnName(7, 'feature_count')
 
 	return ds
+}
+
+/**
+ * @return {JSDataSet}
+ * @properties={typeid:24,uuid:"AE2859F7-C7AB-457B-AD89-73E1398E3FF5"}
+ */
+function getPrintDataSet() {
+	var q = createSelect();
+	
+	// i am excluding cross form scripting
+	var xq = createSelect();
+	xq.result.add(xq.columns.scope)
+	xq.where.add(xq.columns.scope.eq(q.columns.scope))
+	xq.where.add(xq.columns.scopetype.eq(q.columns.scopetype))
+	xq.where.add(xq.columns.solution.eq(q.columns.solution))
+	
+	var or = xq.or
+	or.add(xq.columns.feature.eq('.controller.showPrintPreview'))
+	or.add(xq.columns.feature.eq('.controller.print'))
+	xq.where.add(or)
+	q.where.add(q.columns.scope.not.isin(xq))
+
+	// filter by print features only
+	q.where.add(q.columns.feature.isin(['Controller.print', 'Controller.showPrintPreview']))
+	
+	q.result.add(q.columns.solution, 'solution')
+	q.result.add(q.columns.scope, 'scope')
+	q.result.add(q.columns.scopetype, 'scopetype')
+	q.result.add(q.columns.feature_count.sum, 'feature_count')
+	q.groupBy.add(q.columns.solution)
+	q.groupBy.add(q.columns.scope)
+	q.groupBy.add(q.columns.scopetype)
+
+
+	var ds = q.getDataSet(-1)
+	ds.setColumnName(1, 'solution')
+	ds.setColumnName(2, 'scope')
+	ds.setColumnName(3, 'scopetype')
+	ds.setColumnName(4, 'feature_count')
+
+	ds.addColumn('element_count', 5, JSColumn.INTEGER);
+	ds.addColumn('allelement_count', 6, JSColumn.INTEGER);
+	ds.addColumn('extended', 7, JSColumn.INTEGER);
+	ds.addColumn('complexity_lvl', 8, JSColumn.INTEGER);
+
+	
+
+	var subForms = scopes.svyTiAnalyzer.getChildForms('rpt_base');
+	//	for (var index = 1; index <= ds.getMaxRowIndex(); index++) {
+	//		var childs = scopes.svyTiAnalyzer.getChildForms(ds.getValue(index, 2));
+	//		for (var j = 0; j < childs.length; j++) {
+	//			if (!subForms.includes(childs[j])) {
+	//				subForms.push(childs[j])
+	//			}
+	//		}
+	//	}
+
+	for (var i = 0; i < subForms.length; i++) {
+		ds.addRow(['EXTENDED', subForms[i], 'form.js', 1])
+	}
+
+	for (var index = 1; index <= ds.getMaxRowIndex(); index++) {
+		/** @type {String} */
+		var formName = ds.getValue(index, 2);
+		if (ds.getValue(index, 3) == 'form.js' && formName) {
+			ds.setValue(index, 5, scopes.svyTiAnalyzer.getElementsCount(formName, false));
+			ds.setValue(index, 6, scopes.svyTiAnalyzer.getElementsCount(formName, true));
+			ds.setValue(index, 7, scopes.svyTiAnalyzer.isFormExtended(formName));
+			ds.setValue(index, 8, getPrintComplexity(ds.getValue(index, 5), ds.getValue(index,6)));
+		}
+
+	}
+
+	return ds
+}
+
+/**
+ * @param scope
+ * @param feature
+ * @param solution
+ *
+ * @properties={typeid:24,uuid:"C2FE9065-BC97-468D-BAAF-A440DEBA700D"}
+ */
+function isFormPrint(scope, feature, solution) {
+
+	var intraFormFeature;
+	switch (feature) {
+	case 'Controller.print':
+		intraFormFeature = '.controller.print'
+		break;
+	case 'Controller.showPrintPreview':
+		intraFormFeature = '.controller.showPrintPreview'
+		break;
+	default:
+		return false
+		break;
+	}
+
+	var q = createSelect();
+
+	q.result.add(q.columns.scope);
+
+	q.columns.scope.eq(scope)
+	q.columns.solution.eq(solution)
+	q.columns.feature.eq(intraFormFeature)
+
+	var ds = q.getDataSet(1)
+	return ds.getMaxRowIndex() < 1;
 }
 
 /**
@@ -149,9 +266,9 @@ function getActiveModules() {
 }
 
 /**
- * @public 
+ * @public
  * @return {QBSelect<mem:svymig_scan>}
- * 
+ *
  * @properties={typeid:24,uuid:"66CA899D-E977-4A89-8513-99EFB339984E"}
  */
 function createSelect() {
@@ -161,3 +278,30 @@ function createSelect() {
 	}
 	return q;
 }
+
+/**
+ * 
+ * @param elementSCount
+ * @param allElementsCount
+ * 
+ * @return {Number}
+ *
+ * @properties={typeid:24,uuid:"9EFA5FBA-FDBB-4728-BA83-ACD9763507A6"}
+ */
+function getPrintComplexity(elementSCount, allElementsCount) {
+	
+//	if (elementSCount) {
+//		elementSCount = elementSCount * 3;
+//	}
+	if (elementSCount > 30) {
+		return PRINT_COMPLEXITY_LEVELS.LEGENDARY;
+	}
+	if (elementSCount > 20) {
+		return PRINT_COMPLEXITY_LEVELS.HARD;
+	}
+	if (elementSCount > 10) {
+		return PRINT_COMPLEXITY_LEVELS.MEDIUM;
+	}
+	
+	return PRINT_COMPLEXITY_LEVELS.EASY;
+} 

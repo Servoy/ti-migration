@@ -55,6 +55,13 @@ var countLvl4 = 0;
 var countMigratedLvl4 = 0;
 
 /**
+ * @type {Number}
+ *
+ * @properties={typeid:35,uuid:"9EC26E65-5D18-43C0-BB6F-FCC848D750CD",variableType:4}
+ */
+var countLvlUnknown = 0;
+
+/**
  * @type {String}
  *
  * @properties={typeid:35,uuid:"9B1B3C05-B0EA-4B87-B5E9-9A83756DC336"}
@@ -85,6 +92,7 @@ function onShow(firstShow, event) {
 	// Delay until the form and foundset are loaded
 	// application.executeLater(showFormsCount, 500);
 
+	refreshData()
 	// TODO
 	// updateCounts();
 }
@@ -183,55 +191,40 @@ function countComplexity(lvl) {
  *
  * @properties={typeid:24,uuid:"FC40FF4B-473B-4071-8B35-7BAE35A5E3CE"}
  */
-function onCellClick(foundsetindex, columnindex, record, event) {
-	if (!record) {
-		record = elements.formsGrid.myFoundset.foundset.getRecord(foundsetindex);
-		if (!record) {
-			return;
-		}
-	}
-
-	var column = elements.formsGrid.getColumn(columnindex);
-	if (column.id == 'btnConvert' && !record.isConverted) {
-		convertGridForm(record);
-	} else if (column.id == 'onRenderCount') {
-		forms.svyTiMigrationFormOnRender.show(record);
-	} else if (column.id == 'btnOpen') {
-		servoyDeveloper.openForm(solutionModel.getForm(record.form_name));
-
-		var win = application.createWindow('oldForm', JSWindow.MODAL_DIALOG);
-		win.setSize(640, 480);
-		win.title = ' '
-		win.show(forms[record.form_name]);
-	}
-}
+function onCellClick(foundsetindex, columnindex, record, event) { }
 
 /**
- * @param {JSRecord<mem:migrationFormStats>} record
- *
- * @properties={typeid:24,uuid:"76395CD3-C681-4144-B78A-CF5C31044F58"}
+ * @properties={typeid:24,uuid:"7E14473A-83A7-402E-9F3C-C041E30C190C"}
  */
-function convertGridForm(record) {
-	if (!record) {
-		return;
-	}
+function refreshData() {
+	var ds = scopes.svyTIScanData.getPrintDataSet();
+	elements.powergrid_1.renderData(scopes.svyTIScanData.getPrintDataSet())
 
-	try {
-		plugins.svyBlockUI.show('Converting form...');
+	countLvl1 = 0
+	countLvl2 = 0
+	countLvl3 = 0
+	countLvl4 = 0;
+	countLvlUnknown = 0;
 
-		var success = scopes.svyTiMigration.convertTableFormToGrid(record.form_name, true, true);
-		if (success) {
-			scopes.svyTiHelper.addFormConversionStat(record.form_name);
-			showFormsCount();
-			updateCounts();
+	for (var i = 1; i <= ds.getMaxRowIndex(); i++) {
+		var lvl = ds.getValue(i, 8)
+		switch (lvl) {
+		case 4:
+			countLvl4++;
+			break;
+		case 3:
+			countLvl3++;
+			break;
+		case 2:
+			countLvl2++;
+			break;
+		case 1:
+			countLvl1++;
+			break;
+		default:
+			countLvlUnknown++;
+			break;
 		}
-	} catch (e) {
-		application.output('Error converting form: ' + record.form_name + ' - error: ' + e.message + ' - stack: ' + e.stack, LOGGINGLEVEL.ERROR);
-	} finally {
-		plugins.svyBlockUI.stop();
 	}
 
-	if (!success) {
-		plugins.dialogs.showErrorDialog('Error', 'Could not convert form: ' + record.form_name + '.<br>Please check the log for errors.');
-	}
 }
