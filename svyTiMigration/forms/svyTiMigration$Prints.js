@@ -62,6 +62,20 @@ var countMigratedLvl4 = 0;
 var countLvlUnknown = 0;
 
 /**
+ * @type {Number}
+ *
+ * @properties={typeid:35,uuid:"B67E9B39-43F7-4B90-A990-42990BF26114",variableType:4}
+ */
+var totalPrintsMigrated = 0;
+
+/**
+ * @type {Number}
+ *
+ * @properties={typeid:35,uuid:"C8A6C661-9A1D-4973-83BF-A399FE167D11",variableType:4}
+ */
+var totalPrints = 0
+
+/**
  * @type {String}
  *
  * @properties={typeid:35,uuid:"9B1B3C05-B0EA-4B87-B5E9-9A83756DC336"}
@@ -89,95 +103,7 @@ function onLoad(event) {
  * @properties={typeid:24,uuid:"4E7138C3-270C-4080-AC5C-F96204F07E5B"}
  */
 function onShow(firstShow, event) {
-	// Delay until the form and foundset are loaded
-	// application.executeLater(showFormsCount, 500);
-
 	refreshData()
-	// TODO
-	// updateCounts();
-}
-
-/**
- * @properties={typeid:24,uuid:"2475EFF4-E7EF-4818-8719-EFC936A14ECE"}
- */
-function showFormsCount() {
-	var qForms = datasources.mem.migrationFormStats.createSelect();
-	qForms.result.add(qForms.columns.form_name.count);
-	qForms.where.add(qForms.columns.conversion_date.not.isNull);
-
-	var convertedCount = qForms.getDataSet(1).getValue(1, 1) || 0;
-	var formsCount = databaseManager.getFoundSetCount(elements.formsGrid.myFoundset.foundset);
-
-	// TODO yes i know we can do it better.. lets be quick :)
-	forms.svyTiMigration$FormDashbobard.countGrids = formsCount;
-	forms.svyTiMigration$FormDashbobard.countGridsMigrated = convertedCount;
-
-	var qOnRender = datasources.mem.migrationFormOnRender.createSelect();
-	qOnRender.result.add(qOnRender.columns.form_name.count);
-
-	var onRenderCount = qOnRender.getDataSet(1).getValue(1, 1) || 0;
-	forms.svyTiMigration$FormDashbobard.countOnRender = onRenderCount;
-
-	forms.svyTiMigration$FormDashbobard.updateProgress();
-
-	//elements.conversion_label.text = 'Forms Conversion: ' + convertedCount + ' / ' + formsCount + ' (' + Math.floor(convertedCount / formsCount * 100) + '%)';
-}
-
-/**
- * @properties={typeid:24,uuid:"103BFFE1-FA49-4DBA-99EC-85950D9CD543"}
- */
-function updateCounts() {
-
-	countLvl1 = countComplexity(1);
-	countMigratedLvl1 = countMigratedComplexity(1);
-
-	countLvl2 = countComplexity(2);
-	countMigratedLvl2 = countMigratedComplexity(2);
-
-	countLvl3 = countComplexity(3);
-	countMigratedLvl3 = countMigratedComplexity(3);
-
-	countLvl4 = countComplexity(4);
-	countMigratedLvl4 = countMigratedComplexity(4);
-
-}
-
-/**
- * @param {Number} lvl
- * @return {Number}
- * @properties={typeid:24,uuid:"FC2EB7F8-542C-4E90-A0CC-7777887A2927"}
- */
-function countMigratedComplexity(lvl) {
-	var countedMigrated = 0;
-
-	var q = datasources.mem.migrationFormStats.createSelect();
-	q.result.add(q.columns.form_name.count);
-	q.where.add(q.columns.conversion_date.not.isNull);
-	q.where.add(q.columns.complexity_lvl.eq(lvl));
-
-	countedMigrated = q.getDataSet(1).getValue(1, 1) || 0;
-
-	//application.output('countedMigrated '+ countedMigrated);
-	return countedMigrated;
-}
-
-/**
- * @param {Number} lvl
- * @return {Number}
- * @properties={typeid:24,uuid:"A5EAA070-2C1D-4555-A935-CE51AB592FB8"}
- */
-function countComplexity(lvl) {
-	var counted = 0;
-
-	var q = datasources.mem.migrationFormStats.createSelect();
-	q.result.add(q.columns.form_name.count);
-	q.where.add(q.columns.conversion_date.isNull);
-	q.where.add(q.columns.complexity_lvl.eq(lvl));
-
-	counted = q.getDataSet(1).getValue(1, 1) || 0;
-	//application.output('counted '+ counted);
-
-	return counted;
 }
 
 /**
@@ -226,5 +152,7 @@ function refreshData() {
 			break;
 		}
 	}
+	
+	totalPrints = countLvl1 + countLvl2 + countLvl3 + countLvl4 + countLvlUnknown;
 
 }

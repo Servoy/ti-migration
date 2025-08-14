@@ -51,6 +51,47 @@ typeid:47,
 uuid:"4149E151-6717-4714-8F3B-251274877D64"
 },
 {
+cssPosition:"22,30,-1,-1,200,120",
+json:{
+containedForm:{
+border:{
+
+},
+countMigrated:{
+dataProviderID:"totalPrintsMigrated"
+},
+countTotal:{
+dataProviderID:"totalPrints"
+},
+countTotalExtended:{
+
+},
+progressbar:{
+
+},
+slash:{
+
+},
+svy_form:"E64B1B97-BD4A-4172-BF5F-2B4AB47233B8",
+title:{
+text:"Total"
+}
+},
+cssPosition:{
+bottom:"-1",
+height:"120",
+left:"-1",
+right:"30",
+top:"22",
+width:"200"
+}
+},
+name:"fcTotal",
+typeName:"servoycore-formcomponent",
+typeid:47,
+uuid:"52C79F3F-3347-4ED9-9F4F-B86350A2208F"
+},
+{
 cssPosition:"13,-1,-1,20,354,30",
 json:{
 cssPosition:{
@@ -62,7 +103,7 @@ top:"13",
 width:"354"
 },
 styleClass:"default-align h4 font-weight-bold",
-text:"Prints ( TODO )"
+text:"Prints"
 },
 name:"label_31",
 styleClass:"default-align h4 font-weight-bold",
@@ -112,7 +153,7 @@ typeid:47,
 uuid:"6CF3B6D6-D998-41BF-B07A-DC3B3F5D3E0E"
 },
 {
-cssPosition:"154,27,4,19,353,50",
+cssPosition:"154,30,4,19,353,50",
 json:{
 columns:[
 {
@@ -191,7 +232,7 @@ cssPosition:{
 bottom:"4",
 height:"50",
 left:"19",
-right:"27",
+right:"30",
 top:"154",
 width:"353"
 },
@@ -317,7 +358,7 @@ top:"51",
 width:"150"
 }
 },
-name:"formcomponentcontainer_2",
+name:"lvlUnknown",
 typeName:"servoycore-formcomponent",
 typeid:47,
 uuid:"FDE89B09-8018-4577-BA02-A173C5B61817"
@@ -329,6 +370,6 @@ navigatorID:"-1",
 onLoadMethodID:"8A0792D8-8B71-4C35-BB7B-F0EDC72C484E",
 onShowMethodID:"4E7138C3-270C-4080-AC5C-F96204F07E5B",
 showInMenu:true,
-size:"949,300",
+size:"1094,300",
 typeid:3,
 uuid:"A120D542-B168-4857-B17C-F51D960128D1"

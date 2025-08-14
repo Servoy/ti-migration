@@ -2,10 +2,10 @@
  * @properties={typeid:35,uuid:"A14891DF-BE47-4DF3-BAF8-30CC25E9FD82",variableType:-4}
  */
 var PRINT_COMPLEXITY_LEVELS = {
-	EASY		: 1,
-	MEDIUM		: 2,
-	HARD		: 3,
-	LEGENDARY	: 4
+	EASY: 1,
+	MEDIUM: 2,
+	HARD: 3,
+	LEGENDARY: 4
 };
 
 /**
@@ -94,33 +94,57 @@ function getScanDataSet() {
  */
 function getPrintDataSet() {
 	var q = createSelect();
-	
-	// i am excluding cross form scripting
-	var xq = createSelect();
-	xq.result.add(xq.columns.scope)
-	xq.where.add(xq.columns.scope.eq(q.columns.scope))
-	xq.where.add(xq.columns.scopetype.eq(q.columns.scopetype))
-	xq.where.add(xq.columns.solution.eq(q.columns.solution))
-	
-	var or = xq.or
-	or.add(xq.columns.feature.eq('.controller.showPrintPreview'))
-	or.add(xq.columns.feature.eq('.controller.print'))
-	xq.where.add(or)
-	q.where.add(q.columns.scope.not.isin(xq))
+
+	/** @type {QBJoin<mem:svymig_scan>} */
+	var join = q.joins.add(datasources.mem.svymig_scan.getDataSource(), QBJoin.INNER_JOIN);
+	join.on.add(join.columns.scope.eq(q.columns.scope))
+	join.on.add(join.columns.scopetype.eq(q.columns.scopetype))
+	join.on.add(join.columns.solution.eq(q.columns.solution))
+	//join.on.add(join.columns.feature.eq(value))
+
+	var or = q.or
+	or.add(q.and.add(join.columns.feature.eq('.controller.showPrintPreview')).add(q.columns.feature.eq('Controller.showPrintPreview')))
+	or.add(q.and.add(join.columns.feature.eq('.controller.print')).add(q.columns.feature.eq('Controller.print')))
+	q.where.add(or)
 
 	// filter by print features only
-	q.where.add(q.columns.feature.isin(['Controller.print', 'Controller.showPrintPreview']))
-	
+	//q.where.add(q.columns.feature.isin(['Controller.print', 'Controller.showPrintPreview']))
+
 	q.result.add(q.columns.solution, 'solution')
 	q.result.add(q.columns.scope, 'scope')
 	q.result.add(q.columns.scopetype, 'scopetype')
+	q.result.add(q.columns.feature_count.sum, 'feature_count')
 	q.result.add(q.columns.feature_count.sum, 'feature_count')
 	q.groupBy.add(q.columns.solution)
 	q.groupBy.add(q.columns.scope)
 	q.groupBy.add(q.columns.scopetype)
 
+	// Get Dataset with Cross-Print scripting
+	var xds = q.getDataSet(-1)
+	var crossPrintScopes = xds.getColumnAsArray(2);
 
-	var ds = q.getDataSet(-1)
+	// Get Dataset without Cross-Print scripting
+	q = createSelect();
+	q.where.add(q.columns.feature.isin(['Controller.print', 'Controller.showPrintPreview']));
+	q.where.add(q.columns.scope.not.isin(crossPrintScopes));
+
+	q.result.add(q.columns.solution, 'solution')
+	q.result.add(q.columns.scope, 'scope')
+	q.result.add(q.columns.scopetype, 'scopetype')
+	q.result.add(q.columns.feature_count.sum, 'feature_count')
+	q.result.add(q.columns.feature_count.sum, 'feature_count')
+	q.groupBy.add(q.columns.solution)
+	q.groupBy.add(q.columns.scope)
+	q.groupBy.add(q.columns.scopetype)
+
+	var ds = q.getDataSet(-1);
+
+	// concatenate the DS
+	for (index = 1; index <= xds.getMaxRowIndex(); index++) {
+		xds.setValue(index, 3, 'x-' + xds.getValue(index, 3))
+		ds.addRow(xds.getRowAsArray(index))
+	}
+
 	ds.setColumnName(1, 'solution')
 	ds.setColumnName(2, 'scope')
 	ds.setColumnName(3, 'scopetype')
@@ -130,8 +154,6 @@ function getPrintDataSet() {
 	ds.addColumn('allelement_count', 6, JSColumn.INTEGER);
 	ds.addColumn('extended', 7, JSColumn.INTEGER);
 	ds.addColumn('complexity_lvl', 8, JSColumn.INTEGER);
-
-	
 
 	var subForms = scopes.svyTiAnalyzer.getChildForms('rpt_base');
 	//	for (var index = 1; index <= ds.getMaxRowIndex(); index++) {
@@ -154,7 +176,7 @@ function getPrintDataSet() {
 			ds.setValue(index, 5, scopes.svyTiAnalyzer.getElementsCount(formName, false));
 			ds.setValue(index, 6, scopes.svyTiAnalyzer.getElementsCount(formName, true));
 			ds.setValue(index, 7, scopes.svyTiAnalyzer.isFormExtended(formName));
-			ds.setValue(index, 8, getPrintComplexity(ds.getValue(index, 5), ds.getValue(index,6)));
+			ds.setValue(index, 8, getPrintComplexity(ds.getValue(index, 5), ds.getValue(index, 6)));
 		}
 
 	}
@@ -280,19 +302,19 @@ function createSelect() {
 }
 
 /**
- * 
+ *
  * @param elementSCount
  * @param allElementsCount
- * 
+ *
  * @return {Number}
  *
  * @properties={typeid:24,uuid:"9EFA5FBA-FDBB-4728-BA83-ACD9763507A6"}
  */
 function getPrintComplexity(elementSCount, allElementsCount) {
-	
-//	if (elementSCount) {
-//		elementSCount = elementSCount * 3;
-//	}
+
+	//	if (elementSCount) {
+	//		elementSCount = elementSCount * 3;
+	//	}
 	if (elementSCount > 30) {
 		return PRINT_COMPLEXITY_LEVELS.LEGENDARY;
 	}
@@ -302,6 +324,6 @@ function getPrintComplexity(elementSCount, allElementsCount) {
 	if (elementSCount > 10) {
 		return PRINT_COMPLEXITY_LEVELS.MEDIUM;
 	}
-	
+
 	return PRINT_COMPLEXITY_LEVELS.EASY;
-} 
+}
