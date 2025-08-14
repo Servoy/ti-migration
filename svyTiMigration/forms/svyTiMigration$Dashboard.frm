@@ -289,6 +289,9 @@ right:"20",
 top:"160",
 width:"0"
 },
+gridOptions:{
+enableCellTextSelection:"true"
+},
 myFoundset:{
 foundsetSelector:"mem:migrationFormStats",
 loadAllRecords:true

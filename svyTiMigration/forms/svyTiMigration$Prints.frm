@@ -236,7 +236,11 @@ right:"30",
 top:"154",
 width:"353"
 },
-formIndex:0
+formIndex:0,
+gridOptions:{
+cellSelection:"true",
+enableCellTextSelection:"true"
+}
 },
 name:"powergrid_1",
 typeName:"aggrid-datasettable",

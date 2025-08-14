@@ -155,15 +155,15 @@ function getPrintDataSet() {
 	ds.addColumn('extended', 7, JSColumn.INTEGER);
 	ds.addColumn('complexity_lvl', 8, JSColumn.INTEGER);
 
-	var subForms = scopes.svyTiAnalyzer.getChildForms('rpt_base');
-	//	for (var index = 1; index <= ds.getMaxRowIndex(); index++) {
-	//		var childs = scopes.svyTiAnalyzer.getChildForms(ds.getValue(index, 2));
-	//		for (var j = 0; j < childs.length; j++) {
-	//			if (!subForms.includes(childs[j])) {
-	//				subForms.push(childs[j])
-	//			}
-	//		}
-	//	}
+	var subForms = [];
+		for (var index = 1; index <= ds.getMaxRowIndex(); index++) {
+			var childs = scopes.svyTiAnalyzer.getChildForms(ds.getValue(index, 2));
+			for (var j = 0; j < childs.length; j++) {
+				if (!subForms.includes(childs[j])) {
+					subForms.push(childs[j])
+				}
+			}
+		}
 
 	for (var i = 0; i < subForms.length; i++) {
 		ds.addRow(['EXTENDED', subForms[i], 'form.js', 1])
