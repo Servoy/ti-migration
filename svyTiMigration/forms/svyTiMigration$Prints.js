@@ -156,3 +156,17 @@ function refreshData() {
 	totalPrints = countLvl1 + countLvl2 + countLvl3 + countLvl4 + countLvlUnknown;
 
 }
+
+/**
+ * Fired when the button is clicked.
+ *
+ * @param {JSEvent} event
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"4ABEDEA5-DA29-4450-BD2C-3F5A4A2A0D60"}
+ */
+function onActionExport(event) {
+	elements.powergrid_1.exportData()
+
+}

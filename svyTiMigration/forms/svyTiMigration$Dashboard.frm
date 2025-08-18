@@ -199,6 +199,7 @@ columns:[
 {
 dataprovider:"form_name",
 dndSource:true,
+filterType:"TEXT",
 headerTitle:"Form Name",
 id:"form_name",
 styleClassDataprovider:null,
@@ -218,6 +219,7 @@ width:150
 {
 autoResize:false,
 dataprovider:"body_components_count",
+filterType:"NUMBER",
 format:"#",
 headerTitle:"# Components",
 id:"body_components_count",

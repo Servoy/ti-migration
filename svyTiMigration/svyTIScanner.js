@@ -50,13 +50,16 @@ var cachedFeats = {};
 var FEATURE_CATEGORIES = {
 	DEPRECATED_FUNC : [
 	'Application.executeProgram', 
-	'Application.beep', 
+	'Application.beep',
+	'application.playSound',
 	'Application.setStatusText', 
 	'Application.getClipboardString', 
-	'Application.setClipboardContent', 
+	'Application.setClipboardContent',
+	'application.showColorChooser',
 	'i18n.setTimeZone', 
 	'application.setToolbarVisible', 
-	'Plugins.window.getMenuBar', 
+	'Plugins.window.getMenuBar',
+	'plugins.window.setToolBarAreaVisible',
 	'APPLICATION_TYPES.WEB_CLIENT', 
 	'APPLICATION_TYPES.SMART_CLIENT', 
 	'application.overrideStyle'],
@@ -82,7 +85,9 @@ var FEATURE_CATEGORIES = {
 	'Plugins.file.writeTXTFile',
 	'Plugins.file.read',
 	'Plugins.file.readTXTFile', 
-	'Plugins.file.createFolder', 
+	'Plugins.file.createFolder',
+	'Plugins.file.streamFilesToServer',
+	'Plugins.file.streamFilesFromServer',
 	'Plugins.file'],
 	PLUGIN: ['Plugins.busy', 
 	'Plugins.drmaison', 
@@ -146,6 +151,7 @@ var FEATURE_CATEGORIES = {
 	'JSForm.LOCKED_LIST_VIEW', 
 	'JSForm.LIST_VIEW', 
 	'solutionModel'],
+	POSITIONING:['.setSize','.setLocation'],
 	INLINE_HTML: ['<html>', '<style>', 'javascript:'],
 	FORM_EVENT: ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'],
 	RTF: ['RTF Area'],
@@ -420,6 +426,7 @@ function scan(dir) {
 
 	//solution Model
 	dictionary = dictionary.concat(FEATURE_CATEGORIES.SOLUTION_MODEL); //high complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.POSITIONING); //high complexity
 
 	//Beans
 	dictionary_beans = FEATURE_CATEGORIES.BEANS//['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea']; //high complexity

@@ -10,6 +10,29 @@ typeid:19,
 uuid:"1F01C09B-9D7C-48A1-A466-ED6F1675F4FE"
 },
 {
+cssPosition:"-1,10,12,-1,40,40",
+formIndex:1,
+json:{
+cssPosition:{
+bottom:"12",
+height:"40",
+left:"-1",
+right:"10",
+top:"-1",
+width:"40"
+},
+formIndex:1,
+imageStyleClass:"fa fa-download",
+onActionMethodID:"4ABEDEA5-DA29-4450-BD2C-3F5A4A2A0D60",
+styleClass:"btn btn-primary btn-round"
+},
+name:"btnExport",
+styleClass:"btn btn-primary btn-round",
+typeName:"bootstrapcomponents-button",
+typeid:47,
+uuid:"379805A2-B1A9-4FD8-8024-24F1485C1112"
+},
+{
 cssPosition:"50,-1,-1,193,150,90",
 json:{
 containedForm:{
