@@ -301,7 +301,7 @@ function getStructure(dir) {
 					if (!fobj[ (f[j].getName()).split('.frm')[0]]) {
 						fobj[ (f[j].getName()).split('.frm')[0]] = { };
 					}
-					fobj[ (f[j].getName()).split('.frm')[0]].frm = plugins.file.readTXTFile(f[j]);
+					fobj[ (f[j].getName()).split('.frm')[0]].frm = readJSFile(f[j]);
 					for (var k = 0; k < dictionary_frm_events.length; k++) {
 						var ctn = dictionary_frm_events[k];
 						var tbl_cols = 0; //if we have a table view, count num of cols
@@ -328,7 +328,7 @@ function getStructure(dir) {
 					if (!fobj[ (f[j].getName()).split('.js')[0]]) {
 						fobj[ (f[j].getName()).split('.js')[0]] = { }
 					}
-					fobj[ (f[j].getName()).split('.js')[0]].js = plugins.file.readTXTFile(f[j]);
+					fobj[ (f[j].getName()).split('.js')[0]].js = readJSFile(f[j]);
 					var js = fobj[ (f[j].getName()).split('.js')[0]].js;
 					for (k = 0; k < dictionary.length; k++) {
 						ctn = dictionary[k];
@@ -347,7 +347,7 @@ function getStructure(dir) {
 		if (d[i].getName().includes('.js')) {
 			if (!sobj[ (d[i].getName()).split('.js')[0]]) {
 				sobj[ (d[i].getName()).split('.js')[0]] = { };
-				sobj[ (d[i].getName()).split('.js')[0]].js = plugins.file.readTXTFile(d[i]);
+				sobj[ (d[i].getName()).split('.js')[0]].js = readJSFile(d[i]);
 
 				js = sobj[ (d[i].getName()).split('.js')[0]].js;
 				for (k = 0; k < dictionary.length; k++) {
@@ -376,13 +376,29 @@ function getStructure(dir) {
 				if (!dsObj.tbl) dsObj.tbl = { };
 				for (k = 0; k < fj.length; k++) {
 					if (fj[k].getName().includes('_calculations.js'))
-						dsObj.calcs[fj[k].getName().split('_calculations.js')[0]] = plugins.file.readTXTFile(fj[k]);
+						dsObj.calcs[fj[k].getName().split('_calculations.js')[0]] = readJSFile(fj[k]);
 					if (fj[k].getName().includes('.tbl'))
-						dsObj.tbl[fj[k].getName().split('.tbl')[0]] = plugins.file.readTXTFile(fj[k]);
+						dsObj.tbl[fj[k].getName().split('.tbl')[0]] = readJSFile(fj[k]);
 				}
 			}
 		}
 	}
+}
+
+/**
+ * @private 
+ * @return {String}
+ * @param jsFile
+ *
+ * @properties={typeid:24,uuid:"F7033043-B7FC-4953-BB01-9B58464A5333"}
+ */
+function readJSFile(jsFile) {
+	var js = plugins.file.readTXTFile(jsFile);
+	var rgx = /\/\/.*?$|\/\*[\s\S]*?\*\//gm
+	if (js) {
+		return js.replace(rgx,'')
+	}
+	return js;
 }
 
 /**
