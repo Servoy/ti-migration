@@ -1,6 +1,13 @@
 /**
  * @type {Number}
  *
+ * @properties={typeid:35,uuid:"830AAA61-8F07-4B14-AE88-7FD96D9FE001",variableType:4}
+ */
+var filterReport = 0;
+
+/**
+ * @type {Number}
+ *
  * @properties={typeid:35,uuid:"DC7D3D70-0FBD-4C87-8D33-0206128ECB85",variableType:4}
  */
 var countLvl1 = 0;
@@ -129,17 +136,17 @@ function showFormsCount() {
  */
 function updateCounts() {
 
-	countLvl1 = countComplexity(1);
-	countMigratedLvl1 = countMigratedComplexity(1);
+	countLvl1 = countComplexity(1, filterReport);
+	countMigratedLvl1 = countMigratedComplexity(1, filterReport);
 	
-	countLvl2 = countComplexity(2);
-	countMigratedLvl2 = countMigratedComplexity(2);
+	countLvl2 = countComplexity(2, filterReport);
+	countMigratedLvl2 = countMigratedComplexity(2, filterReport);
 	
-	countLvl3 = countComplexity(3);
-	countMigratedLvl3 = countMigratedComplexity(3);
+	countLvl3 = countComplexity(3, filterReport);
+	countMigratedLvl3 = countMigratedComplexity(3, filterReport);
 	
-	countLvl4 = countComplexity(4);
-	countMigratedLvl4 = countMigratedComplexity(4);
+	countLvl4 = countComplexity(4, filterReport);
+	countMigratedLvl4 = countMigratedComplexity(4, filterReport);
 
 }
 
@@ -165,10 +172,11 @@ function countMigratedComplexity(lvl)
 
 /**
  * @param {Number} lvl
+ * @param {Number} [filterGridReport]
  * @return {Number}
  * @properties={typeid:24,uuid:"B2B15097-58FB-4ADC-AA17-EA06B9ACB461"}
  */
-function countComplexity(lvl)
+function countComplexity(lvl, filterGridReport)
 {
 	var counted = 0;
 	
@@ -176,6 +184,17 @@ function countComplexity(lvl)
 	q.result.add(q.columns.form_name.count);
 	q.where.add(q.columns.conversion_date.isNull);
 	q.where.add(q.columns.complexity_lvl.eq(lvl));
+	
+	switch (filterGridReport) {
+		case 1:
+			q.where.add(q.columns.is_report.eq(0));
+			break;
+		case 2:
+			q.where.add(q.columns.is_report.eq(1));
+			break;
+		default:
+			break;
+	}
 	
 	counted = q.getDataSet(1).getValue(1, 1) || 0;
 	//application.output('counted '+ counted);
@@ -246,4 +265,22 @@ function convertGridForm(record) {
 	if (!success) {
 		plugins.dialogs.showErrorDialog('Error', 'Could not convert form: ' + record.form_name + '.<br>Please check the log for errors.');
 	}
+}
+/**
+ * Handle changed data, return false if the value should not be accepted.
+ * JSEvent.data will contain extra information about dataproviderid, its scope and the scope id (record datasource or form/global variable scope) - present since 2021.06 release
+ *
+ * @param oldValue
+ * @param newValue
+ * @param {JSEvent} event
+ *
+ * @return {Boolean}
+ *
+ * @protected
+ *
+ * @properties={typeid:24,uuid:"5352EA77-1CCF-47FE-8FAF-61416DD0ED35"}
+ */
+function onDataChangeFilterReport(oldValue, newValue, event) {
+	updateCounts();
+	return true
 }

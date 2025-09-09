@@ -24,22 +24,22 @@ function svyActionConvertGrid(event) {\n\
 }";
 
 /**
- * @enum 
+ * @enum
  * @properties={typeid:35,uuid:"655F99A0-00FE-4626-A106-E9C31610FDF6",variableType:-4}
  */
 var FORM_COMPLEXITY_LEVELS = {
-	EASY		: 1,
-	MEDIUM		: 2,
-	HARD		: 3,
-	LEGENDARY	: 4
+	EASY: 1,
+	MEDIUM: 2,
+	HARD: 3,
+	LEGENDARY: 4
 };
 
 /**
  * @type {Object<{formType: Number, componentsCount: Number, conversionDate: Number, renderInfo: Object<{code: String, info: String}>}>}
- * 
+ *
  * @properties={typeid:35,uuid:"CF71E540-201B-45C2-88BB-CF997260DC2F",variableType:-4}
  */
-var formStatObj = {};
+var formStatObj = { };
 
 /**
  *
@@ -55,8 +55,8 @@ function svyActionConvertGrid(event) {
 	} catch (e) {
 		application.output(e, LOGGINGLEVEL.ERROR);
 	}
-	
-;
+
+	;
 }
 
 /**
@@ -78,26 +78,26 @@ function addHintToGridForms() {
  */
 function addConvertButton(formName) {
 	var jsform = solutionModel.getForm(formName);
-	
+
 	var titleHeaderPart = jsform.getTitleHeaderPart();
 	var headerPart = jsform.getHeaderPart();
 	var headerHeight = titleHeaderPart ? titleHeaderPart.height : 0;
 	if (headerPart) {
 		headerHeight += headerPart.height;
 	}
-	
+
 	var bodyPart = jsform.getBodyPart();
 	var bodyOffset = bodyPart.getPartYOffset();
 	var bodyHeight = bodyPart.height - bodyOffset;
 	var footerPart = jsform.getFooterPart();
 	var footerOffSet = footerPart ? footerPart.getPartYOffset() : bodyPart.height;
 	var footerHeight = footerPart ? footerPart.height : 0;
-	
+
 	var buttonOffset = 0;
 	var buttonHeight = 50;
 	if (headerHeight) {
 		buttonHeight = Math.min(buttonHeight, headerHeight)
-	} else if (footerHeight && footerHeight ) {
+	} else if (footerHeight && footerHeight) {
 		buttonOffset = footerOffSet;
 		buttonHeight = Math.min(buttonHeight, footerHeight)
 	} else {
@@ -105,19 +105,15 @@ function addConvertButton(formName) {
 		buttonHeight = Math.min(buttonHeight, bodyHeight)
 	}
 
-	
-	
-	var button = jsform.newWebComponent('svyBtnGridConverter','bootstrapcomponents-button', 15, buttonOffset, 50, buttonHeight);
-	button.setJSONProperty('styleClass','btn btn-warning btn-round');
+	var button = jsform.newWebComponent('svyBtnGridConverter', 'bootstrapcomponents-button', 15, buttonOffset, 50, buttonHeight);
+	button.setJSONProperty('styleClass', 'btn btn-warning btn-round');
 	//button.setJSONProperty('text','NG');
-	button.setJSONProperty('toolTipText','Convert the form to NGGrid');
-	button.setJSONProperty('imageStyleClass','fab fa-html5 fa-xl')
+	button.setJSONProperty('toolTipText', 'Convert the form to NGGrid');
+	button.setJSONProperty('imageStyleClass', 'fab fa-html5 fa-xl')
 	button.formIndex = 9999;
-	
+
 	var jsMethod = solutionModel.getGlobalMethod('svyTiHelper', 'svyActionConvertGrid');
 	button.setHandler("onAction", jsMethod);
-	
-	
 
 }
 
@@ -129,7 +125,7 @@ function buildFormStatsFile() {
 	var now = Date.now();
 
 	formStatObj = { };
-	
+
 	tableForms.forEach(function(formName) {
 		var form = solutionModel.getForm(formName);
 		var componentsCount = scopes.countElementsToConvert.countElementsTblForm(form.name);
@@ -140,16 +136,16 @@ function buildFormStatsFile() {
 		// All these forms have not been converted yet, so no conversion date
 		formStatObj[formName] = getFormStatObj(form);
 	});
-	
+
 	solutionModel.getForms().forEach(/** @param {JSForm} form */ function(form) {
 		if (/_OLD$/.test(form.name) && solutionModel.getForm(form.name.replace(/_OLD$/, ''))) {
 			var formName = form.name.replace(/_OLD$/, '');
-			
+
 			// As we cannot know when the conversion was done, we use the current date
 			formStatObj[formName] = getFormStatObj(form, now);
 		}
 	});
-	
+
 	saveFormStatsToFile();
 }
 
@@ -157,23 +153,35 @@ function buildFormStatsFile() {
  * @properties={typeid:24,uuid:"E2B173FA-9E6C-4529-929C-29A36074E6C9"}
  */
 function buildFormStatsMemTable() {
-	var dsForms = databaseManager.createEmptyDataSet(0, ['form_name', 'form_type', 'body_components_count', 'conversion_date', 'complexity_lvl', 'is_inherited']);
+	var dsForms = databaseManager.createEmptyDataSet(0, ['form_name', 'form_type', 'body_components_count', 'conversion_date', 'complexity_lvl', 'is_inherited', 'is_report']);
 	var dsOnRender = databaseManager.createEmptyDataSet(0, ['form_name', 'function_name', 'function_code', 'function_ai_analysis']);
 	var statsFile = plugins.file.convertToJSFile(plugins.file.getDefaultUploadLocation() + '/formStats.json');
 	var fileContent = statsFile.exists() ? plugins.file.readTXTFile(statsFile) : '';
 	var extendedForms = scopes.svyTiAnalyzer.getAllTableInheritedForms().concat(scopes.svyTiAnalyzer.getAllListInheritedForms())
+
 	
-	formStatObj = {};
+	var reports = scopes.svyTIScanData.getPrintDataSet();
+	
+	var reportForms =[];
+	for (var r = 1; r <= reports.getMaxRowIndex(); r++) {
+		var row = reports.getRowAsArray(r);
+		if (row[2] == 'form.js') {
+			reportForms.push(row[1])
+		}
+	}
+	
+	formStatObj = { };
 	if (fileContent) {
 		try {
 			formStatObj = JSON.parse(fileContent);
-			
+
 			for (var formName in formStatObj) {
 				var conversionDate = formStatObj[formName].conversionDate ? new Date(formStatObj[formName].conversionDate) : null;
 				var isInherited = extendedForms.includes(formName)
-				var complexity = getFormMigrationComplexity(formStatObj[formName].componentsCount, isInherited);
-
-				dsForms.addRow([formName, formStatObj[formName].formType, formStatObj[formName].componentsCount, conversionDate, complexity, isInherited]);
+				var complexity = getFormMigrationComplexity(formStatObj[formName].componentsCount, isInherited, formStatObj[formName].formType, formName);
+				var isReport = reportForms.includes(formName)
+				
+				dsForms.addRow([formName, formStatObj[formName].formType, formStatObj[formName].componentsCount, conversionDate, complexity, isInherited, isReport]);
 
 				if (formStatObj[formName].renderInfo) {
 					for (var functionName in formStatObj[formName].renderInfo) {
@@ -189,6 +197,7 @@ function buildFormStatsMemTable() {
 
 	dsForms.createDataSource('migrationFormStats');
 	dsOnRender.createDataSource('migrationFormOnRender');
+	
 }
 
 /**
@@ -196,18 +205,18 @@ function buildFormStatsMemTable() {
  */
 function saveFormStatsToFile() {
 	if (!formStatObj) {
-		formStatObj = {};
+		formStatObj = { };
 	}
-	
+
 	var statsFile = plugins.file.convertToJSFile(plugins.file.getDefaultUploadLocation() + '/formStats.json');
 	plugins.file.writeTXTFile(statsFile, JSON.stringify(formStatObj));
-	
+
 	application.output('Stats file: ' + statsFile.getAbsolutePath());
 }
 
 /**
  * This should be called after a form was successfully converted
- * 
+ *
  * @param {String} formName
  * @param {Date} [conversionDate]
  *
@@ -218,23 +227,23 @@ function addFormConversionStat(formName, conversionDate) {
 	if (!form) {
 		return;
 	}
-	
+
 	if (!formStatObj || !Object.keys(formStatObj).length) {
 		buildFormStatsFile();
 	}
-	
+
 	if (!conversionDate) {
 		conversionDate = new Date();
 	}
-	
+
 	var timestamp = conversionDate ? conversionDate.getTime() : Date.now();
-	
+
 	if (formStatObj[formName]) {
 		formStatObj[formName].conversionDate = timestamp;
 	} else {
 		formStatObj[formName] = getFormStatObj(solutionModel.getForm(form.name + '_OLD'), conversionDate.getTime());
 	}
-	
+
 	saveFormStatsToFile();
 	buildFormStatsMemTable();
 }
@@ -250,13 +259,13 @@ function updateRenderInfo(formName, functionName, info) {
 	if (!formStatObj || !Object.keys(formStatObj).length) {
 		buildFormStatsFile();
 	}
-	
+
 	if (!formStatObj[formName] || !formStatObj[formName].renderInfo || !formStatObj[formName].renderInfo[functionName]) {
 		return
 	}
 
 	formStatObj[formName].renderInfo[functionName].info = info;
-	
+
 	saveFormStatsToFile();
 	buildFormStatsMemTable();
 }
@@ -267,27 +276,27 @@ function updateRenderInfo(formName, functionName, info) {
  */
 function getAllStyles() {
 
-	var all_styles = {};
-	
+	var all_styles = { };
+
 	/** @type Array<String> */
 	all_styles.styles = [];
-	
+
 	/** @type Array<Number> */
 	all_styles.stylesNo = []
-	
+
 	var jsforms = solutionModel.getForms();
 	for (var i = 0; i < jsforms.length; i++) {
 		var style = jsforms[i].styleName;
 
-		if (style && !all_styles.styles.includes(style)) {	
+		if (style && !all_styles.styles.includes(style)) {
 			all_styles.styles.push(style);
 			all_styles.stylesNo.push(1);
 		} else {
 			var x = all_styles.styles.indexOf(style);
-			all_styles.stylesNo[x] = all_styles.stylesNo[x]+1;
+			all_styles.stylesNo[x] = all_styles.stylesNo[x] + 1;
 		}
 	}
-	
+
 	//application.output('all_styles.styles '+ all_styles.styles+ ' all_styles.stylesNo '+ all_styles.stylesNo);
 
 	return all_styles;
@@ -312,26 +321,40 @@ function getFormStatObj(form, conversionDate) {
 /**
  * @param {Number} componentsCount
  * @param {Boolean} isInherited
+ * @param {Number} formType
+ * @param {String} name
  * @return {Number}
  *
  * @properties={typeid:24,uuid:"5035A88C-C678-4767-834B-399B66244A66"}
  */
-function getFormMigrationComplexity(componentsCount, isInherited) {
-	
-	if (isInherited) {
-		componentsCount = componentsCount * 3;
+function getFormMigrationComplexity(componentsCount, isInherited, formType, name) {
+
+	if (formType != 3) {
+		componentsCount = Math.floor(componentsCount * 1.5)
 	}
-	
+
+	if (isInherited) {
+		componentsCount = componentsCount * 2;
+	}
+
+	// I want to skip reports.
+	if (name.startsWith('rpt') || name.includes('Report') || name.startsWith('report')) {
+		return 0;
+	}
+
 	if (componentsCount > 25) {
 		return FORM_COMPLEXITY_LEVELS.LEGENDARY;
 	}
-	if (componentsCount > 17) {
+	if (componentsCount > 15) {
 		return FORM_COMPLEXITY_LEVELS.HARD;
 	}
-	if (componentsCount > 10) {
+	if (componentsCount > 7) {
 		return FORM_COMPLEXITY_LEVELS.MEDIUM;
 	}
-	
+	if (componentsCount < 1) {
+		return 0;
+	}
+
 	return FORM_COMPLEXITY_LEVELS.EASY;
 }
 
@@ -345,19 +368,19 @@ function getFormOnRenderInfo(form) {
 	if (!form) {
 		return null;
 	}
-	
-	var renderInfo = {};
-	
+
+	var renderInfo = { };
+
 	if (form.onRender) {
-		renderInfo[form.onRender.getName()] = {code: form.onRender.code, info: null};
+		renderInfo[form.onRender.getName()] = { code: form.onRender.code, info: null };
 	}
-	
+
 	form.getComponents().forEach(function(component) {
 		if (component.onRender) {
-			renderInfo[component.onRender.getName()] = {code: component.onRender.code, info: null};
+			renderInfo[component.onRender.getName()] = { code: component.onRender.code, info: null };
 		}
 	});
-	
+
 	return Object.keys(renderInfo).length ? renderInfo : null;
 }
 

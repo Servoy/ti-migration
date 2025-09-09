@@ -1,0 +1,9 @@
+addEmptyValue:1,
+customValues:"All|0\r\
+No Report|1\r\
+Report|2",
+displayValueType:12,
+name:"svyTiFilterGridReport",
+realValueType:4,
+typeid:34,
+uuid:"25143433-D03F-45A4-A983-93A32B25AF8E"

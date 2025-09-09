@@ -384,6 +384,20 @@ function getStructure(dir) {
 		}
 	}
 }
+
+/**
+ * @param formNames
+ *
+ * @properties={typeid:24,uuid:"EA218326-4AC0-4922-A482-3DBD10CDC560"}
+ */
+function scanFormReferences(formNames) {
+	dictionary = formNames;
+	
+	var dir = getWorkspacePath();
+
+	return runScan(dir);
+}
+
 /**
  * @param [dir] use default workspace if not specified
  * @return {{html:String, csv:String}}
@@ -391,13 +405,8 @@ function getStructure(dir) {
  */
 function scan(dir) {
 	
-	if (!dir) dir = getWorkspacePath();
 
-	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype', 'featuretype', 'feature_count']);
 
-	var totalsObj = { num_of_tables_or_lists: 0, num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
-	var retMsg = '';
-	var csv_data = 'Solution;Source;Flag;# times found;complexity;notes\n';
 	servoySolutions = [];
 	servoySolutionsObj = { };
 	ignore = ['.git', '.gitignore', '.settings', 'svyTiMigration', 'svyUtils', 'svyUtils$Excel', 'svyUtils$customDialogs', 'svyUtils$smartClient', 'svyUtils$tableGrid', 'servoyCommonsExample', 'svy_mod_dialogs'];
@@ -438,6 +447,20 @@ function scan(dir) {
 	//Inline html
 	dictionary = dictionary.concat(FEATURE_CATEGORIES.INLINE_HTML); //medium complexity
 
+	return runScan(dir);
+}
+
+/**
+ * @properties={typeid:24,uuid:"55C971D2-BD35-473A-A9FB-540D8034DC47"}
+ */
+function runScan(dir) {
+	
+	var dataset = databaseManager.createEmptyDataSet(0, ['solution', 'scope', 'feature', 'complexity', 'scopetype', 'featuretype', 'feature_count']);
+
+	var totalsObj = { num_of_tables_or_lists: 0, num_of_forms: 0, num_of_scopes: 0, total_num_flags: 0, complexity_low: 0, complexity_medium: 0, complexity_high: 0, complexity_blocker: 0 }
+	var retMsg = '';
+	var csv_data = 'Solution;Source;Flag;# times found;complexity;notes\n';
+	
 	function updateComplexity(v, marker_obj, tally_obj) {
 		var ct = marker_obj[v]
 		//		application.output('update complexity:' + v)
