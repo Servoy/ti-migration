@@ -152,6 +152,7 @@ var FEATURE_CATEGORIES = {
 	'JSForm.LIST_VIEW', 
 	'solutionModel'],
 	POSITIONING:['.setSize','.setLocation'],
+	CONTROLLER:['controller.readOnly','controller.enabled'],
 	INLINE_HTML: ['<html>', '<style>', 'javascript:'],
 	FORM_EVENT: ['onRender', 'onDrop', 'onDrag', 'onDragOver', 'onCommand'],
 	RTF: ['RTF Area'],
@@ -452,6 +453,7 @@ function scan(dir) {
 	//solution Model
 	dictionary = dictionary.concat(FEATURE_CATEGORIES.SOLUTION_MODEL); //high complexity
 	dictionary = dictionary.concat(FEATURE_CATEGORIES.POSITIONING); //high complexity
+	dictionary = dictionary.concat(FEATURE_CATEGORIES.CONTROLLER); //high complexity
 
 	//Beans
 	dictionary_beans = FEATURE_CATEGORIES.BEANS//['JProgressBar', 'IT2BeCalendar', 'DatasetGrid', 'InMemDataGrid', 'DnDTreeView', 'TreeView', 'DBTreeView', 'DBTreeTableView', 'JXBrowser', 'JTextField', 'JTextArea']; //high complexity
