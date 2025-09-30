@@ -111,14 +111,23 @@ function onShow(firstShow, event) {
 function showFormsCount() {
 	var qForms = datasources.mem.migrationFormStats.createSelect();
 	qForms.result.add(qForms.columns.form_name.count);
+	qForms.where.add(qForms.columns.form_type.eq(3))
 	qForms.where.add(qForms.columns.conversion_date.not.isNull);
 	
 	var convertedCount = qForms.getDataSet(1).getValue(1, 1) || 0;
-	var formsCount = databaseManager.getFoundSetCount(elements.formsGrid.myFoundset.foundset);
+	
+	qForms.where.clear();
+	qForms.where.add(qForms.columns.form_type.isin([1,4]))
+	qForms.where.add(qForms.columns.conversion_date.not.isNull);
+	
+	var convertedListCount = qForms.getDataSet(1).getValue(1, 1) || 0;
 	
 	// TODO yes i know we can do it better.. lets be quick :) 
 	//forms.svyTiMigration$FormDashbobard.countGrids = formsCount;
 	forms.svyTiMigration$FormDashbobard.countGridsMigrated = convertedCount;
+	forms.svyTiMigration$FormDashbobard.countListsMigrated = convertedListCount;
+
+	var formsCount = databaseManager.getFoundSetCount(elements.formsGrid.myFoundset.foundset);
 	
 	var qOnRender = datasources.mem.migrationFormOnRender.createSelect();
 	qOnRender.result.add(qOnRender.columns.form_name.count);

@@ -13,7 +13,7 @@ count:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"57",
+left:"65",
 right:"-1",
 top:"49",
 width:"71"

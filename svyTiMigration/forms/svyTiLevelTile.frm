@@ -30,14 +30,14 @@ typeid:19,
 uuid:"3C4D4FC2-5AD1-4CD1-9E3F-AF1C1C64A20B"
 },
 {
-cssPosition:"49,94,-1,45,11,30",
+cssPosition:"49,-1,-1,55,11,30",
 formIndex:2,
 json:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"45",
-right:"94",
+left:"55",
+right:"-1",
 top:"49",
 width:"11"
 },
@@ -94,7 +94,7 @@ typeid:47,
 uuid:"4EEBC347-915D-47E5-99C1-F8483A07E2D1"
 },
 {
-cssPosition:"49,-1,-1,12,30,30",
+cssPosition:"49,-1,-1,12,40,30",
 formIndex:3,
 json:{
 cssPosition:{
@@ -103,7 +103,7 @@ height:"30",
 left:"12",
 right:"-1",
 top:"49",
-width:"30"
+width:"40"
 },
 formIndex:3,
 styleClass:"default-align h3 font-weight-bold align-right"
@@ -115,13 +115,13 @@ typeid:47,
 uuid:"671E30B4-77E7-4259-AC35-A54A86BB91CA"
 },
 {
-cssPosition:"49,-1,-1,57,71,30",
+cssPosition:"49,-1,-1,65,71,30",
 formIndex:3,
 json:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"57",
+left:"65",
 right:"-1",
 top:"49",
 width:"71"

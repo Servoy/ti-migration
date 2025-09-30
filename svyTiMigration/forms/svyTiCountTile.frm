@@ -23,7 +23,7 @@ typeid:47,
 uuid:"0F16FF5F-8EAE-451C-B24B-00D04324F0ED"
 },
 {
-cssPosition:"59,-1,-1,12,30,30",
+cssPosition:"59,-1,-1,12,50,30",
 json:{
 cssPosition:{
 bottom:"-1",
@@ -31,7 +31,7 @@ height:"30",
 left:"12",
 right:"-1",
 top:"59",
-width:"30"
+width:"50"
 },
 styleClass:"default-align h3 font-weight-bold align-right"
 },
@@ -42,12 +42,12 @@ typeid:47,
 uuid:"26D2339F-CA64-4E54-9BD5-24BDA15A1CD1"
 },
 {
-cssPosition:"59,-1,-1,45,10,30",
+cssPosition:"59,-1,-1,65,10,30",
 json:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"45",
+left:"65",
 right:"-1",
 top:"59",
 width:"10"
@@ -62,12 +62,12 @@ typeid:47,
 uuid:"33C42566-306D-4C6D-86BD-0D1FBE26DD32"
 },
 {
-cssPosition:"59,15,-1,57,0,30",
+cssPosition:"59,15,-1,75,0,30",
 json:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"57",
+left:"75",
 right:"15",
 top:"59",
 width:"0"
@@ -123,12 +123,12 @@ typeid:47,
 uuid:"B81FAED1-64E7-41B8-9BDC-32DC22376763"
 },
 {
-cssPosition:"59,0,-1,100,0,30",
+cssPosition:"59,0,-1,120,0,30",
 json:{
 cssPosition:{
 bottom:"-1",
 height:"30",
-left:"100",
+left:"120",
 right:"0",
 top:"59",
 width:"0"
